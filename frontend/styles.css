@@ -286,8 +286,9 @@ figure { margin: 0; }
   .brand img { width: 40px; height: 40px; }
   .brand strong { font-size: 19px; }
   .brand small { font-size: 12px; }
-  .hero-layout { min-height: clamp(500px, 68svh, 580px); align-items: flex-start; padding-block: 36px; }
-  .hero-scene { top: auto; bottom: 0; left: 85%; right: auto; height: 80%; transform: translateX(-62%); }
+  .hero { --mobile-scene-height: clamp(220px, 60vw, 280px); }
+  .hero-layout { min-height: 0; align-items: flex-start; padding-top: 36px; padding-bottom: calc(var(--mobile-scene-height) + 16px); }
+  .hero-scene { top: auto; bottom: 0; left: auto; right: -36px; height: var(--mobile-scene-height); transform: none; }
   .hero::after { background: linear-gradient(180deg, #041329e6, #041329a3 22%, transparent 65%); }
   .hero .institution { font-size: 1.375rem; }
   .hero-fullname { font-size: 1.0625rem; white-space: normal; }
