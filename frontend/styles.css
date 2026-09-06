@@ -287,7 +287,7 @@ figure { margin: 0; }
   .brand strong { font-size: 19px; }
   .brand small { font-size: 12px; }
   .hero-layout { min-height: clamp(500px, 68svh, 580px); align-items: flex-start; padding-block: 36px; }
-  .hero-scene { top: auto; bottom: 0; left: 92%; right: auto; height: 80%; transform: translateX(-62%); }
+  .hero-scene { top: auto; bottom: 32px; left: 92%; right: auto; height: 80%; transform: translateX(-62%); }
   .hero::after { background: linear-gradient(90deg, #04132966, #04132940 45%, transparent 78%), linear-gradient(180deg, #041329e6, #041329a3 22%, transparent 65%); }
   .hero .institution { font-size: 1.375rem; }
   .hero-fullname { font-size: 1.0625rem; white-space: normal; }

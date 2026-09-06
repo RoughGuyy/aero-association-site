@@ -91,7 +91,7 @@ test('cinematic hero is height-limited above a light reading surface with local 
   assert.match(css, /\.hero-guide::after/);
   assert.match(css, /prefers-reduced-motion: reduce[\s\S]*\.hero-guide::after/);
   assert.match(css, /\.hero-fullname \{[^}]*white-space: nowrap/);
-  assert.match(css, /@media \(max-width: 640px\)[\s\S]*\.hero-scene \{[^}]*left: 92%[^}]*height: 80%/);
+  assert.match(css, /@media \(max-width: 640px\)[\s\S]*\.hero-scene \{[^}]*bottom: 32px[^}]*left: 92%[^}]*height: 80%/);
   assert.match(css, /@media \(max-width: 640px\)[\s\S]*\.hero-layout \{[^}]*padding-block: 36px/);
   assert.ok(!css.includes('--mobile-scene-height'), 'mobile artwork remains a background, without a separate reserved row');
   assert.match(css, /@media \(max-width: 900px\)[\s\S]*\.hero-fullname \{[^}]*white-space: normal/);
