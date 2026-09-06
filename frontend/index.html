@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="{{站点.简介}}">
+  <title>{{站点.名称}} · {{站点.学校}}</title>
+  <link rel="icon" href="/assets/association-logo.png" type="image/png">
+  <link rel="stylesheet" href="{{资源.样式}}">
+  <script defer src="{{资源.脚本}}"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="/" aria-label="{{站点.名称}}{{栏目.home}}">
+        <img src="/assets/association-logo.png" alt="">
+        <span><strong>{{站点.名称}}</strong><small>{{站点.学校}}</small></span>
+      </a>
+      <button class="menu-toggle" id="menuToggle" type="button" aria-expanded="false" aria-controls="siteNav">栏目</button>
+      <nav class="site-nav" id="siteNav" aria-label="官网栏目">
+        <a href="/?page=guide" data-page="guide">{{栏目.guide}}</a>
+        <a href="/?page=resources" data-page="resources">{{栏目.resources}}</a>
+        <a href="/?page=projects" data-page="projects">{{栏目.projects}}</a>
+        <a href="/?page=outreach" data-page="outreach">{{栏目.outreach}}</a>
+        <a href="/?page=updates" data-page="updates">{{栏目.updates}}</a>
+      </nav>
+    </div>
+  </header>
+  <main id="main" tabindex="-1">
+    <div class="container page"><h1>{{站点.名称}}</h1><p>正在加载内容…</p></div>
+    <noscript><p>请启用 JavaScript 查看{{栏目.guide}}和活动内容。招新 QQ 群：{{站点.QQ群}}；活动地点：{{站点.地点}}。</p></noscript>
+  </main>
+  <footer class="site-footer">
+    <div class="container footer-inner"><span>{{站点.全称}}</span><a href="/#join">{{站点.地点简称}} · QQ {{站点.QQ群}}</a></div>
+  </footer>
+</body>
+</html>

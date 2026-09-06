@@ -1,0 +1,16 @@
+.env
+.conda/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+data/*.json
+conversations/*.json
+logs/
+source_materials/*
+!source_materials/.gitkeep
+内部资料/
+PROJECT_CONTEXT.md
+AGENTS.md
+tmp/
+.env.production
+dist/
