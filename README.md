@@ -40,4 +40,4 @@ python build_static_site.py
 
 成员在独立分支修改并提交 Pull Request；合并到 `main` 后，GitHub Actions 自动构建并发布到 GitHub Pages。通常几分钟后线上更新。
 
-3D 打印示例视频为 99.66 MiB，已低于 GitHub 单文件 100 MiB 上限，但不能通过网页上传；请用 Git 克隆与推送。其他新增资源尽量保持轻量。
+3D 打印示例视频为 99.66 MiB，已低于 GitHub 单文件 100 MiB 上限，但不能通过网页上传，该问题待解决；请用 Git 克隆与推送。其他新增资源尽量保持轻量。
