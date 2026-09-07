@@ -22,7 +22,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: python -m pip install python-dotenv
+      - run: python -m pip install -r requirements-static.txt
       - run: python build_static_site.py
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4

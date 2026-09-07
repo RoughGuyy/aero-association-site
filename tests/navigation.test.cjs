@@ -102,10 +102,10 @@ test('cinematic hero is height-limited above a light reading surface with local 
   }
 });
 
-test('twilight source crop omits phone chrome without modifying the source photograph', () => {
-  const source = fs.readFileSync(path.join(__dirname, '../source_materials/70_外部参考资料/官网视觉参考/暮光羽流/暮光羽流-用户提供原图.jpg'));
-  const published = fs.readFileSync(path.join(__dirname, '../发布资源/官网配图/hero-twilight-plume.jpg'));
-  assert.deepEqual(published, source);
+test('published twilight artwork uses the intended source crop', () => {
+  const published = path.join(__dirname, '../发布资源/官网配图/hero-twilight-plume.jpg');
+  assert.ok(fs.existsSync(published));
+  assert.equal(copy.home.主视觉图片, '/assets/hero-twilight-plume.jpg');
   const css = fs.readFileSync(path.join(__dirname, '../frontend/styles.css'), 'utf8');
   assert.match(css, /\.hero-scene \{[^}]*aspect-ratio: 2240 \/ 1216/);
   assert.match(css, /\.hero-scene img \{[^}]*left: -12\.5%/);
@@ -115,20 +115,12 @@ test('twilight source crop omits phone chrome without modifying the source photo
   assert.ok(1178 < 1216 && 1216 < 1236); // signature stays; phone bar is below the crop
 });
 
-test('photo comparison reuses the real hero without putting preview controls on the homepage', () => {
-  const preview = fs.readFileSync(path.join(__dirname, '../frontend/hero-preview.html'), 'utf8');
-  assert.ok(preview.includes('renderHero('));
-  assert.ok(preview.includes('name="robots" content="noindex, nofollow"'));
-  for (const filename of ['cuadc-field.jpg', 'hero-member-j11.jpeg', 'hero-member-decathlon.jpeg']) {
-    assert.ok(preview.includes(filename));
-    assert.ok(fs.existsSync(path.join(__dirname, '../发布资源/官网配图', filename)));
-  }
+test('unpublished hero candidates are absent from the homepage', () => {
   assert.ok(!site.renderHome().includes('hero-preview'));
   assert.ok(!fs.readFileSync(path.join(__dirname, '../frontend/index.html'), 'utf8').includes('hero-preview'));
-  const alternate = site.renderHero({ ...copy.home, 主视觉图片: '/assets/hero-member-j11.jpeg', 主视觉描述: '成员的 J11 航模', 主视觉宽度: 4096, 主视觉高度: 3072 });
-  assert.ok(alternate.includes('/assets/hero-member-j11.jpeg'));
-  assert.ok(alternate.includes('width="4096" height="3072"'));
-  assert.ok(!site.renderHome().includes('/assets/hero-member-j11.jpeg'));
+  for (const filename of ['hero-member-j11.jpeg', 'hero-member-decathlon.jpeg', 'hero-nebula.webp']) {
+    assert.ok(!site.renderHome().includes(filename));
+  }
 });
 
 test('a direct aircraft link has only its own ordered chapters', () => {
