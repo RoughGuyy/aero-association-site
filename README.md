@@ -2,7 +2,7 @@
 
 电子科技大学航空航天科技协会的资料与活动网站，由协会同学共同维护。当前是学生个人发起的项目，不是学校官方门户。
 
-[访问网站](https://roughguyy.github.io/aero-association-site/) · [参与维护](CONTRIBUTING.md) · [内容编辑说明](网站内容/README.md)
+[访问网站](https://roughguyy.github.io/aero-association-site/) · [GitHub 零基础入门](GitHub零基础入门.md) · [参与维护](CONTRIBUTING.md) · [内容编辑说明](网站内容/README.md)
 
 ## 从哪里修改
 
@@ -39,5 +39,7 @@ python build_static_site.py
 ## 发布方式
 
 成员在独立分支修改并提交 Pull Request；合并到 `main` 后，GitHub Actions 自动构建并发布到 GitHub Pages。通常几分钟后线上更新。
+
+第一次使用 GitHub 的同学先看 [GitHub 零基础入门](GitHub零基础入门.md)。少量文字可以直接在网页中修改；长期维护图片、样式或程序时，建议使用 GitHub Desktop 和 VS Code。
 
 3D 打印示例视频为 99.66 MiB，已低于 GitHub 单文件 100 MiB 上限，但不能通过网页上传，该问题待解决；请用 Git 克隆与推送。其他新增资源尽量保持轻量。

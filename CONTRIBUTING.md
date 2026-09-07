@@ -2,6 +2,8 @@
 
 欢迎协会成员补充教程、活动通知、新闻记录和项目资料。所有内容会公开展示，请先核对事实、图片授权和个人信息。
 
+第一次使用 GitHub？先看 [GitHub 零基础入门](GitHub零基础入门.md)，里面分别说明了网页小改和 GitHub Desktop 长期维护两种方法。
+
 ## 推荐流程
 
 1. 从 `main` 新建分支，例如 `content/science-camp` 或 `fix/mobile-hero`。
