@@ -353,6 +353,36 @@ test('making and flying tutorials contain essentials without prerequisite handbo
   assert.ok(!curves.includes('?article=tx12-quickstart'));
 });
 
+test('beginner routes include current simulator choices, acquisition links, and setup guidance', () => {
+  const fixed = articleBody('01_新人指南/固定翼入门/01_凤凰模拟器.md');
+  for (const term of [
+    'RealFlight Evolution',
+    'aerofly RC 10',
+    'MULTIflight',
+    'PicaSim',
+    'PhoenixRC_emu_v0_3.zip',
+    '群文件',
+    'Simulation > Select Controller'
+  ]) assert.ok(fixed.includes(term), term);
+  assert.match(fixed, /https:\/\/store\.steampowered\.com\/app\/2069310\//);
+  assert.match(fixed, /https:\/\/www\.ikarus\.net\/en\/rc10-purchase\//);
+
+  const fpv = articleBody('01_新人指南/穿越机入门.md');
+  for (const term of [
+    'Liftoff',
+    'VelociDrone',
+    'Uncrashed',
+    'FPV SkyDive',
+    'DRL Simulator',
+    'USB Joystick',
+    'joy.cpl',
+    'ACRO'
+  ]) assert.ok(fpv.includes(term), term);
+  assert.match(fpv, /https:\/\/store\.steampowered\.com\/app\/410340\//);
+  assert.match(fpv, /https:\/\/www\.velocidrone\.com\/shop/);
+  for (const body of [fixed, fpv]) assert.doesNotMatch(body, /周六|集中答疑|9月19/);
+});
+
 test('the safety prerequisite does not send newcomers into a second course', () => {
   const safety = articleBody('02_技术资料/安全与训练/安全须知.md');
   assert.ok(!safety.includes('?article='));

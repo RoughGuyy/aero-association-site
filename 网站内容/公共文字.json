@@ -12,7 +12,7 @@
   "路线": {"design": "设计与制作", "fixed-wing": "固定翼入门", "fpv": "穿越机入门", "helicopter": "直升机入门"},
   "资料分组": ["设计与制作", "遥控器与航电", "安全与训练参考"],
   "文章简称": {
-    "fixed-wing-simulator": "凤凰模拟器", "moyi90": "魔翼 90 制作",
+    "fixed-wing-simulator": "固定翼模拟器", "moyi90": "魔翼 90 制作",
     "first-flight-check": "首飞检查与基础航线", "after-moyi90-airframes": "后续机型",
     "fpv-path": "模拟器与装机", "helicopter-path": "基础悬停与方向练习",
     "design-making": "设计与制作", "tx12-quickstart": "TX12 快速上手",
