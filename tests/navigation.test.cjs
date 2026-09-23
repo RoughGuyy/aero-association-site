@@ -363,9 +363,15 @@ test('fixed-wing simulator guide keeps Phoenix as the main flow and other simula
     'aerofly RC 10',
     'MULTIflight',
     'PicaSim',
-    '视频简介中的指引'
+    '有实体加密狗',
+    '没有实体加密狗',
+    'PhoenixRC6-association-package.zip',
+    'launcher.exe',
+    'simulator.exe'
   ]) assert.ok(fixed.includes(term), term);
   assert.ok(!fixed.includes('群文件'));
+  assert.ok(fixed.includes('不需要运行 `launcher.exe`'));
+  assert.match(fixed, /releases\/download\/phoenix-rc6-v1\/PhoenixRC6-association-package\.zip/);
   assert.ok(fixed.indexOf('## Phoenix RC 6 安装和启动') < fixed.indexOf('## 其他模拟器（补充）'));
   assert.ok(!fixed.includes('## RealFlight 遥控器设置'));
   assert.ok(!fixed.includes('## aerofly RC 10 遥控器设置'));
