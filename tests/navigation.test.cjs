@@ -353,17 +353,22 @@ test('making and flying tutorials contain essentials without prerequisite handbo
   assert.ok(!curves.includes('?article=tx12-quickstart'));
 });
 
-test('beginner routes include current simulator choices, acquisition links, and setup guidance', () => {
+test('fixed-wing simulator guide keeps Phoenix as the main flow and other simulators as supplements', () => {
   const fixed = articleBody('01_新人指南/固定翼入门/01_凤凰模拟器.md');
   for (const term of [
+    '协会目前主要使用 Phoenix RC 6',
+    '其他模拟器（补充）',
+    '自行下载或购买',
     'RealFlight Evolution',
     'aerofly RC 10',
     'MULTIflight',
     'PicaSim',
-    '视频简介中的指引',
-    'Simulation > Select Controller'
+    '视频简介中的指引'
   ]) assert.ok(fixed.includes(term), term);
   assert.ok(!fixed.includes('群文件'));
+  assert.ok(fixed.indexOf('## Phoenix RC 6 安装和启动') < fixed.indexOf('## 其他模拟器（补充）'));
+  assert.ok(!fixed.includes('## RealFlight 遥控器设置'));
+  assert.ok(!fixed.includes('## aerofly RC 10 遥控器设置'));
   assert.match(fixed, /https:\/\/store\.steampowered\.com\/app\/2069310\//);
   assert.match(fixed, /https:\/\/www\.ikarus\.net\/en\/rc10-purchase\//);
 
