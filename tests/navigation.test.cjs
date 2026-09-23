@@ -360,10 +360,10 @@ test('beginner routes include current simulator choices, acquisition links, and 
     'aerofly RC 10',
     'MULTIflight',
     'PicaSim',
-    'PhoenixRC_emu_v0_3.zip',
-    '群文件',
+    '视频简介中的指引',
     'Simulation > Select Controller'
   ]) assert.ok(fixed.includes(term), term);
+  assert.ok(!fixed.includes('群文件'));
   assert.match(fixed, /https:\/\/store\.steampowered\.com\/app\/2069310\//);
   assert.match(fixed, /https:\/\/www\.ikarus\.net\/en\/rc10-purchase\//);
 
