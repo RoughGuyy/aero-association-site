@@ -369,9 +369,15 @@ test('fixed-wing simulator guide keeps Phoenix as the main flow and other simula
     'launcher.exe',
     'simulator.exe',
     '图文教程可以独立完成安装',
-    'Phoenix安装路线图.svg',
-    'Phoenix无加密狗文件示意.svg'
+    '关闭后再下载',
+    '游戏手柄',
+    '注册此程序以重新启动',
+    '01_资料包与启动文件.jpg',
+    '05_launcher兼容性设置.jpg',
+    '07_运行Phoenix.jpg'
   ]) assert.ok(fixed.includes(term), term);
+  assert.ok(!fixed.includes('Phoenix安装路线图.svg'));
+  assert.ok(!fixed.includes('Phoenix无加密狗文件示意.svg'));
   assert.ok(!fixed.includes('群文件'));
   assert.ok(fixed.includes('不需要运行 `launcher.exe`'));
   assert.match(fixed, /releases\/download\/phoenix-rc6-v1\/PhoenixRC6-association-package\.zip/);
