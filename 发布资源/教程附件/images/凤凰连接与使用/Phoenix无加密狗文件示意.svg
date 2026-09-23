@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="820" viewBox="0 0 1400 820" role="img" aria-labelledby="title desc">
+  <title id="title">Phoenix RC 6 无实体加密狗文件操作示意</title>
+  <desc id="desc">将启动文件复制到 Phoenix 安装目录，并把 PhoenixRC.exe 与 simulator.exe 按教程要求重命名。</desc>
+  <rect width="1400" height="820" fill="#f4f8fb"/>
+  <text x="700" y="66" text-anchor="middle" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="38" font-weight="700" fill="#132f46">没有实体加密狗：文件操作示意</text>
+  <text x="700" y="108" text-anchor="middle" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="21" fill="#50677a">全部操作都在 Phoenix 安装目录中完成</text>
+
+  <rect x="70" y="150" width="390" height="540" rx="22" fill="#ffffff" stroke="#2b6f9d" stroke-width="3"/>
+  <text x="265" y="202" text-anchor="middle" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="27" font-weight="700" fill="#17384f">① 解压启动包</text>
+  <rect x="112" y="242" width="306" height="76" rx="12" fill="#e8f2f8"/>
+  <text x="265" y="288" text-anchor="middle" font-family="Consolas, monospace" font-size="21" fill="#17384f">PhoenixRC_emu_v0_3.zip</text>
+  <path d="M265 328 V382" stroke="#2b6f9d" stroke-width="5"/>
+  <path d="M255 372 L265 388 L275 372" fill="none" stroke="#2b6f9d" stroke-width="5"/>
+  <rect x="112" y="398" width="306" height="74" rx="12" fill="#ffffff" stroke="#7fa8c2" stroke-width="2"/>
+  <text x="265" y="444" text-anchor="middle" font-family="Consolas, monospace" font-size="24" fill="#17384f">launcher.exe</text>
+  <rect x="112" y="492" width="306" height="74" rx="12" fill="#ffffff" stroke="#7fa8c2" stroke-width="2"/>
+  <text x="265" y="538" text-anchor="middle" font-family="Consolas, monospace" font-size="24" fill="#17384f">phnxdll.dll</text>
+  <text x="265" y="624" text-anchor="middle" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="21" fill="#50677a">把这两个文件复制到</text>
+  <text x="265" y="657" text-anchor="middle" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="21" font-weight="700" fill="#17384f">Phoenix 安装目录</text>
+
+  <path d="M470 420 H535" stroke="#50677a" stroke-width="5"/>
+  <path d="M525 410 L541 420 L525 430" fill="none" stroke="#50677a" stroke-width="5"/>
+
+  <rect x="550" y="150" width="780" height="540" rx="22" fill="#ffffff" stroke="#b66a27" stroke-width="3"/>
+  <text x="940" y="202" text-anchor="middle" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="27" font-weight="700" fill="#17384f">② 在安装目录中改名</text>
+
+  <text x="610" y="264" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="21" font-weight="700" fill="#50677a">改名前</text>
+  <text x="1050" y="264" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="21" font-weight="700" fill="#50677a">改名后</text>
+
+  <rect x="602" y="294" width="276" height="76" rx="12" fill="#fff3e7" stroke="#d4965d" stroke-width="2"/>
+  <text x="740" y="341" text-anchor="middle" font-family="Consolas, monospace" font-size="24" fill="#17384f">PhoenixRC.exe</text>
+  <path d="M890 332 H1010" stroke="#b66a27" stroke-width="5"/>
+  <path d="M1000 322 L1016 332 L1000 342" fill="none" stroke="#b66a27" stroke-width="5"/>
+  <rect x="1025" y="294" width="250" height="76" rx="12" fill="#e9f5ee" stroke="#65a27f" stroke-width="2"/>
+  <text x="1150" y="341" text-anchor="middle" font-family="Consolas, monospace" font-size="24" fill="#17384f">updates.exe</text>
+
+  <rect x="602" y="402" width="276" height="76" rx="12" fill="#fff3e7" stroke="#d4965d" stroke-width="2"/>
+  <text x="740" y="449" text-anchor="middle" font-family="Consolas, monospace" font-size="24" fill="#17384f">simulator.exe</text>
+  <path d="M890 440 H1010" stroke="#b66a27" stroke-width="5"/>
+  <path d="M1000 430 L1016 440 L1000 450" fill="none" stroke="#b66a27" stroke-width="5"/>
+  <rect x="1025" y="402" width="250" height="76" rx="12" fill="#e9f5ee" stroke="#65a27f" stroke-width="2"/>
+  <text x="1150" y="449" text-anchor="middle" font-family="Consolas, monospace" font-size="24" fill="#17384f">PhoenixRC.exe</text>
+
+  <rect x="602" y="526" width="673" height="104" rx="14" fill="#eef3f6"/>
+  <text x="938" y="568" text-anchor="middle" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="21" fill="#17384f">如果 Windows 隐藏了扩展名，只修改文件名部分，</text>
+  <text x="938" y="602" text-anchor="middle" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="21" fill="#17384f">不要把文件改成 PhoenixRC.exe.exe。</text>
+
+  <rect x="270" y="724" width="860" height="58" rx="29" fill="#17384f"/>
+  <text x="700" y="762" text-anchor="middle" font-family="Microsoft YaHei, Noto Sans CJK SC, sans-serif" font-size="23" font-weight="700" fill="#ffffff">连接遥控器并选择 USB Joystick → 运行 launcher.exe → Run Phoenix</text>
+</svg>
