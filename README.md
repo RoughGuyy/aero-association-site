@@ -48,6 +48,6 @@ python build_static_site.py
 
 当前站点 token 已配置在发布流程中。若以后在 Cloudflare 中重建统计站点，需要同时更新 `.github/workflows/deploy-pages.yml` 中的 `CLOUDFLARE_WEB_ANALYTICS_TOKEN`，然后重新发布。
 
-统计从启用后开始，不能补回之前的访问。Cloudflare 不记录网址问号后的参数，因此目前可以看整站访问情况，不能区分各栏目和文章。
+统计从启用后开始，不能补回之前的访问。站内切换栏目和文章不会重复计数；刷新、重新打开网站或直接打开内容链接会产生新的浏览。Cloudflare 不记录网址问号后的参数，因此目前可以看整站访问情况，不能区分各栏目和文章。
 
 3D 打印示例视频为 99.66 MiB，已低于 GitHub 单文件 100 MiB 上限，但不能通过网页上传，该问题待解决；请用 Git 克隆与推送。其他新增资源尽量保持轻量。

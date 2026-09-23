@@ -45,8 +45,8 @@ def analytics_beacon() -> str:
     if not CLOUDFLARE_TOKEN.fullmatch(token):
         raise ValueError("CLOUDFLARE_WEB_ANALYTICS_TOKEN 格式不正确")
     return (
-        '  <script defer src="https://static.cloudflareinsights.com/beacon.min.js" '
-        f'data-cf-beacon=\'{{"token":"{token}"}}\'></script>\n'
+        '  <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" '
+        f'data-cf-beacon=\'{{"token":"{token}","spa":false}}\'></script>\n'
     )
 
 
