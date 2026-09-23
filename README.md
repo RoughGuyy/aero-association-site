@@ -42,4 +42,15 @@ python build_static_site.py
 
 第一次使用 GitHub 的同学先看 [GitHub 零基础入门](GitHub零基础入门.md)。少量文字可以直接在网页中修改；长期维护图片、样式或程序时，建议使用 VS Code 等IDE。
 
+## 访问统计
+
+网站支持 Cloudflare Web Analytics。启用后可以在 Cloudflare 后台查看访问量、访客数、访问来源、设备和地区等汇总信息，不使用 Cookie，也不收集访客个人信息。
+
+1. 登录 Cloudflare，在 Web Analytics 中添加站点 `roughguyy.github.io`，复制页面给出的站点 token。
+2. 打开 GitHub 仓库的 `Settings → Secrets and variables → Actions → Variables`。
+3. 新建仓库变量 `CLOUDFLARE_WEB_ANALYTICS_TOKEN`，值填刚才复制的 token。
+4. 在 Actions 中重新运行“发布网站”，或等下一次合并到 `main` 后自动发布。
+
+统计从启用后开始，不能补回之前的访问。Cloudflare 不记录网址问号后的参数，因此目前可以看整站访问情况，不能区分各栏目和文章。
+
 3D 打印示例视频为 99.66 MiB，已低于 GitHub 单文件 100 MiB 上限，但不能通过网页上传，该问题待解决；请用 Git 克隆与推送。其他新增资源尽量保持轻量。

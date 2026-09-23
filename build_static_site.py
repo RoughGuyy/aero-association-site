@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 import shutil
 from pathlib import Path
@@ -16,6 +17,7 @@ from aero_association_agent.site_copy import load_site_copy, render_index
 
 OUTPUT_DIR = PROJECT_ROOT / "dist"
 PUBLIC_URL = re.compile(r"/(knowledge/assets|assets|fonts)/([^\"')<>\s]+)")
+CLOUDFLARE_TOKEN = re.compile(r"^[A-Za-z0-9_-]{16,128}$")
 
 
 def write_json(path: Path, value: object) -> None:
@@ -34,6 +36,18 @@ def article_payload(article) -> dict:
         "media": article.media,
         "body": article.body,
     }
+
+
+def analytics_beacon() -> str:
+    token = os.environ.get("CLOUDFLARE_WEB_ANALYTICS_TOKEN", "").strip()
+    if not token:
+        return ""
+    if not CLOUDFLARE_TOKEN.fullmatch(token):
+        raise ValueError("CLOUDFLARE_WEB_ANALYTICS_TOKEN 格式不正确")
+    return (
+        '  <script defer src="https://static.cloudflareinsights.com/beacon.min.js" '
+        f'data-cf-beacon=\'{{"token":"{token}"}}\'></script>\n'
+    )
 
 
 def referenced_public_files(texts: list[str]) -> list[tuple[Path, Path]]:
@@ -82,6 +96,7 @@ def build() -> None:
     index = index.replace('href="/assets/', 'href="assets/')
     index = index.replace('href="/"', 'href="./"').replace('href="/?', 'href="?').replace('href="/#', 'href="./#')
     index = index.replace('src="/assets/', 'src="assets/')
+    index = index.replace("</body>", f"{analytics_beacon()}</body>")
     index = index.replace(
         "<script defer",
         "<script>globalThis.AERO_STATIC_SITE = true;</script>\n  <script defer",
