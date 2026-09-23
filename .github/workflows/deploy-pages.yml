@@ -25,7 +25,7 @@ jobs:
       - run: python -m pip install -r requirements-static.txt
       - name: 生成静态网站
         env:
-          CLOUDFLARE_WEB_ANALYTICS_TOKEN: ${{ vars.CLOUDFLARE_WEB_ANALYTICS_TOKEN }}
+          CLOUDFLARE_WEB_ANALYTICS_TOKEN: f8b9eb85102a48a993b16063414379ea
         run: python build_static_site.py
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
