@@ -4,6 +4,7 @@ const PAGES = {
   home: { title: '首页' },
   guide: { title: '新人指南', article: 'newcomer-path' },
   resources: { title: '技术资料', article: 'resource-center' },
+  aircraft: { title: '机型目录' },
   projects: { title: '项目与竞赛', article: 'competitions-and-growth' },
   outreach: { title: '科普活动', article: 'outreach-service' },
   updates: { title: '新闻与通知' }
@@ -85,7 +86,7 @@ function readLocation(url) {
   const article = query.get('article') || (legacy ? decodeURIComponent(legacy[1]) : '');
   if (article) return { type: 'article', id: article, route: query.get('route') || '', returnId: query.get('return') || '' };
   const kind = query.get('kind');
-  if (['news', 'notices', 'projects'].includes(kind) && query.get('id')) return { type: 'content', kind, id: query.get('id') };
+  if (['news', 'notices', 'projects', 'aircraft'].includes(kind) && query.get('id')) return { type: 'content', kind, id: query.get('id') };
   const page = query.get('page') === 'about' ? 'home' : query.get('page') || 'home';
   return { type: 'page', page: PAGES[page] ? page : 'home' };
 }
@@ -111,8 +112,8 @@ async function fetchJson(path, options = {}) {
     const clean = path.replace(/^\/api\//, '');
     if (clean === 'articles') target = 'api/articles/index.json';
     else if (/^articles\//.test(clean)) target = 'api/' + clean + '.json';
-    else if (/^content\/(news|notices|projects)$/.test(clean)) target = 'api/' + clean + '/index.json';
-    else if (/^content\/(news|notices|projects)\//.test(clean)) target = 'api/' + clean + '.json';
+    else if (/^content\/(news|notices|projects|aircraft)$/.test(clean)) target = 'api/' + clean + '/index.json';
+    else if (/^content\/(news|notices|projects|aircraft)\//.test(clean)) target = 'api/' + clean + '.json';
     else target = 'api/' + clean + '.json';
     target = siteHref(target);
   }
@@ -245,7 +246,28 @@ function renderReader(article, context, state) {
   const chapters = context.isRoute && !isReference && (siblings.previous || siblings.next) ? `<nav class="chapter-footer" aria-label="章节导航">${siblings.previous ? adjacent(siblings.previous, 'prev') : ''}${siblings.next ? adjacent(siblings.next, 'next') : ''}</nav>` : '';
   return `<div class="reading-layout${sidebar ? '' : ' reading-single'}">${sidebar}<div class="reading-main">${breadcrumbs(crumbs)}${isReference ? `<div class="return-route"><a href="${escapeAttr(articleHref(returnId, context.key))}">← ${escapeHtml(wording('阅读', '返回'))}${escapeHtml(articleTitle(returnId, true))}</a></div>` : ''}${pageHeader(article.title, article.summary)}${safety}${renderToc(body, true)}<article class="markdown-body">${renderMarkdown(body)}</article>${renderMedia(article.media || [])}${chapters}</div></div>`;
 }
+function aircraftLabels(item) {
+  return [item.category, item.service_status].filter(Boolean).map(escapeHtml).join(' · ');
+}
+function renderAircraftDirectory(items) {
+  const categories = [...new Set(items.map(item => item.category || '其他'))];
+  return `<div class="container page">${breadcrumbs([{ label: PAGES.aircraft.title }])}${pageHeader(PAGES.aircraft.title, '记录协会与成员的航模，以及它们和我们一起经历的故事。')}${items.some(item => item.status === 'draft') ? '<p class="aircraft-draft">本地草稿预览：草稿不会出现在正式发布的网站上。</p>' : ''}${!items.length ? '<p>航模档案正在整理。</p>' : categories.map(category => `<section class="aircraft-category"><h2>${escapeHtml(category)}</h2><div class="aircraft-grid">${items.filter(item => (item.category || '其他') === category).map(item => {
+    const cover = safeUrl(item.cover, true);
+    return `<a class="aircraft-card" href="${escapeAttr(contentHref('aircraft', item.id))}">${cover ? `<img src="${escapeAttr(cover)}" alt="${escapeAttr(item.cover_alt || item.title)}" loading="lazy">` : ''}<div class="aircraft-card-copy"><p class="record-meta">${aircraftLabels(item)}${item.status === 'draft' ? ' · 草稿' : ''}</p><h3>${escapeHtml(item.title)}</h3>${item.summary ? `<p>${escapeHtml(item.summary)}</p>` : ''}<span class="text-link">查看档案</span></div></a>`;
+  }).join('')}</div></section>`).join('')}</div>`;
+}
+function renderAircraftDetail(item) {
+  const back = pageHref('aircraft');
+  const fields = [['model', '机型'], ['nickname', '昵称'], ['airframe_id', '机体编号'], ['category', '类别'], ['ownership', '归属'], ['service_status', '机体状态'], ['status_updated', '状态确认日期'], ['acquired_date', item.acquired_date_label || '来到协会的时间'], ['acquisition', '来源'], ['wingspan', '翼展'], ['dimensions', '尺寸'], ['weight', '重量'], ['power', '动力'], ['battery', '电池'], ['purpose', '用途']].filter(([key]) => item[key]);
+  const uncommented = stripTitle(String(item.body || '').replace(/<!--[\s\S]*?-->/g, ''));
+  const sections = splitSections(uncommented);
+  const body = sections.intro + sections.sections.filter(section => section.body.trim()).map(section => `\n\n## ${section.title}\n${section.body}`).join('');
+  const cover = safeUrl(item.cover, true);
+  const gallery = [...new Set(item.gallery || [])].filter(src => src !== item.cover).map((src, index) => ({ src, caption: `${item.title} · 照片 ${index + 1}` }));
+  return `<div class="container page aircraft-detail">${breadcrumbs([{ label: PAGES.aircraft.title, href: back }, { label: item.title }])}${pageHeader(item.title, item.summary)}${item.status === 'draft' ? '<p class="aircraft-draft">本地草稿预览</p>' : ''}${cover ? `<img class="page-cover aircraft-cover" src="${escapeAttr(cover)}" alt="${escapeAttr(item.cover_alt || item.title)}">` : ''}${fields.length ? `<dl class="notice-facts">${fields.map(([key, label]) => `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(item[key])}</dd></div>`).join('')}</dl>` : ''}${item.members?.length ? `<p>参与同学：${item.members.map(escapeHtml).join('、')}</p>` : ''}<div class="portal-reading">${renderToc(body, true)}<article class="markdown-body">${renderMarkdown(body)}</article>${gallery.length ? `<h2>相册</h2>${renderMedia(gallery)}` : ''}${renderSource(item)}<nav class="content-footer" aria-label="返回列表"><a href="${escapeAttr(back)}">← 返回机型目录</a></nav></div></div>`;
+}
 function renderContent(item) {
+  if (item.kind === 'aircraft') return renderAircraftDetail(item);
   const page = item.kind === 'projects' ? 'projects' : 'updates';
   const fields = [
     ['event_date', '活动日期'], ['start_time', '开始时间'], ['end_time', '结束时间'],
@@ -279,7 +301,7 @@ async function navigate(url, push = true, restoreScroll = false) {
     if (state.type === 'content') {
       const item = await fetchJson(`/api/content/${state.kind}/${encodeURIComponent(state.id)}`);
       html = renderContent(item);
-      page = state.kind === 'projects' ? 'projects' : 'updates';
+      page = state.kind === 'aircraft' ? 'aircraft' : state.kind === 'projects' ? 'projects' : 'updates';
       title = item.title;
     } else {
       const mappedPage = state.type === 'article' ? PORTAL_ARTICLES[state.id] : state.page;
@@ -292,6 +314,10 @@ async function navigate(url, push = true, restoreScroll = false) {
       else if (mappedPage === 'updates') {
         page = 'updates'; title = PAGES[page].title;
         html = renderUpdates(currentContent);
+      } else if (mappedPage === 'aircraft') {
+        page = 'aircraft'; title = PAGES[page].title;
+        const data = await fetchJson('/api/content/aircraft');
+        html = renderAircraftDirectory(data.items);
       } else {
         const id = state.type === 'article' ? state.id : PAGES[state.page].article;
         const article = await fetchArticle(id);
@@ -391,6 +417,7 @@ function extractHeadings(markdown) {
   return items;
 }
 function renderMarkdown(markdown) {
+  markdown = String(markdown || '').replace(/<!--[\s\S]*?-->/g, '');
   const lines = String(markdown || '').replace(/\r\n/g, '\n').split('\n');
   const html = []; const counts = {}; let paragraph = []; let listType = ''; let inCode = false; let code = [];
   const flush = () => { if (paragraph.length) { html.push(`<p>${renderInline(paragraph.join(' '))}</p>`); paragraph = []; } };
@@ -466,4 +493,4 @@ async function init() {
   await navigate(location.href, false);
 }
 if (typeof document !== 'undefined' && document.getElementById('main')) init();
-if (typeof module !== 'undefined' && module.exports) module.exports = { setSiteCopy, ROUTES, HANDBOOKS, PAGES, PORTAL_ARTICLES, getArticleContext, articleHref, readLocation, chapterNeighbours, renderMarkdown, extractHeadings, renderSidebar, renderReader, renderGuide, renderResources, renderContent, renderHero, renderHome, renderPortal, renderProjectRecords, renderUpdates, safeUrl };
+if (typeof module !== 'undefined' && module.exports) module.exports = { setSiteCopy, ROUTES, HANDBOOKS, PAGES, PORTAL_ARTICLES, getArticleContext, articleHref, readLocation, chapterNeighbours, renderMarkdown, extractHeadings, renderSidebar, renderReader, renderGuide, renderResources, renderContent, renderAircraftDirectory, renderAircraftDetail, renderHero, renderHome, renderPortal, renderProjectRecords, renderUpdates, safeUrl };

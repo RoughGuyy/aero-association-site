@@ -27,7 +27,7 @@ class Article:
 def article_paths() -> list[Path]:
     return sorted(path for path in CONTENT_DIR.rglob("*.md")
                   if not path.name.startswith("_") and path.name != "README.md"
-                  and not {"活动新闻", "活动通知", "项目记录"}.intersection(path.parts))
+                  and not {"活动新闻", "活动通知", "项目记录", "航模档案"}.intersection(path.parts))
 
 
 def load_articles() -> list[Article]:
@@ -119,6 +119,8 @@ def _parse_frontmatter(raw: str) -> tuple[dict[str, str], str]:
     current_key = ""
     current_lines: list[str] = []
     for line in meta_text.splitlines():
+        if line.lstrip().startswith("#"):
+            continue
         if re.match(r"^[A-Za-z_][A-Za-z0-9_]*:", line):
             if current_key:
                 metadata[current_key] = "\n".join(current_lines).strip()

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hashlib
+import argparse
 import json
 import os
 import re
@@ -16,7 +17,7 @@ from aero_association_agent.site_copy import load_site_copy, render_index
 
 
 OUTPUT_DIR = PROJECT_ROOT / "dist"
-PUBLIC_URL = re.compile(r"/(knowledge/assets|assets|fonts)/([^\"')<>\s]+)")
+PUBLIC_URL = re.compile(r"/(knowledge/assets|aircraft-assets|assets|fonts)/([^\"')<>\s]+)")
 CLOUDFLARE_TOKEN = re.compile(r"^[A-Za-z0-9_-]{16,128}$")
 
 
@@ -52,6 +53,7 @@ def analytics_beacon() -> str:
 
 def referenced_public_files(texts: list[str]) -> list[tuple[Path, Path]]:
     roots = {
+        "aircraft-assets": PUBLIC_ASSETS_DIR / "机型目录配图",
         "assets": PUBLIC_ASSETS_DIR / "官网配图",
         "fonts": PUBLIC_ASSETS_DIR / "网页字体",
         "knowledge/assets": PUBLIC_ASSETS_DIR / "教程附件",
@@ -68,7 +70,7 @@ def referenced_public_files(texts: list[str]) -> list[tuple[Path, Path]]:
     return sorted(((source, destination) for destination, source in files.items()), key=lambda item: str(item[1]))
 
 
-def build() -> None:
+def build(*, preview: bool = False) -> None:
     output = OUTPUT_DIR.resolve()
     if output.parent != PROJECT_ROOT.resolve():
         raise RuntimeError("拒绝清理项目目录之外的构建目录")
@@ -78,7 +80,7 @@ def build() -> None:
 
     site_copy = load_site_copy()
     articles = load_articles()
-    content = {kind: [item.as_dict() for item in load_public_content(kind)] for kind in CONTENT_KINDS}
+    content = {kind: [item.as_dict() for item in load_public_content(kind, include_drafts=preview)] for kind in CONTENT_KINDS}
 
     write_json(output / "api/site-copy.json", site_copy)
     write_json(output / "api/articles/index.json", {"sections": article_tree()})
@@ -131,4 +133,6 @@ def build() -> None:
 
 
 if __name__ == "__main__":
-    build()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--preview", action="store_true", help="本地预览公开范围内的航模草稿；正式发布不使用此选项")
+    build(preview=parser.parse_args().preview)

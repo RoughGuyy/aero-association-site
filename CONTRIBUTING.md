@@ -1,13 +1,13 @@
 # 参与维护
 
-欢迎协会成员补充教程、活动通知、新闻记录和项目资料。所有内容会公开展示，请先核对事实、图片授权和个人信息。
+欢迎协会成员补充教程、活动通知、新闻记录、项目资料和航模档案。所有内容会公开展示，请先核对事实、图片授权和个人信息。
 
 第一次使用 GitHub？先看 [GitHub 零基础入门](GitHub零基础入门.md)，里面分别说明了网页小改和 GitHub Desktop 长期维护两种方法。
 
 ## 推荐流程
 
 1. 从 `main` 新建分支，例如 `content/science-camp` 或 `fix/mobile-hero`。
-2. 按 [网站内容编辑说明](网站内容/README.md) 修改；新闻、通知和项目优先复制对应 `_template.md`。
+2. 按 [网站内容编辑说明](网站内容/README.md) 修改；新闻、通知、项目和航模档案优先复制对应 `_template.md`。航模档案的建档、图片、预览与发布步骤见 [机型目录填写说明](网站内容/06_机型目录/_填写说明.md)。
 3. 本地构建并运行检查。
 4. 提交 Pull Request，简要说明改了什么、资料来源以及手机/电脑端是否检查。
 5. 负责人审核并合并；合并后网站自动发布。
@@ -19,13 +19,14 @@
 - 宣传部：活动新闻、照片说明、完整报道链接。
 - 活动部：活动通知、时间地点、报名方式和联系人。
 - 项目参与者：项目记录、制作经验和已验证的技术资料。
+- 航模拥有者和维护者：航模档案、实机照片、机体状态和故事记录。
 - 页面维护者：布局、样式、导航和发布流程。
 
 ## 提交前检查
 
 ```shell
 python -m pip install -r requirements-static.txt
-node --test tests/navigation.test.cjs tests/static-paths.test.cjs
+node --test --test-isolation=none tests/navigation.test.cjs tests/static-paths.test.cjs tests/aircraft.test.cjs
 python build_static_site.py
 ```
 
