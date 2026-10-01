@@ -32,7 +32,7 @@ python -m http.server 8000 --directory dist
 提交前运行：
 
 ```shell
-node --test tests/navigation.test.cjs tests/static-paths.test.cjs
+node --test --test-isolation=none tests/navigation.test.cjs tests/static-paths.test.cjs tests/aircraft.test.cjs
 python build_static_site.py
 ```
 

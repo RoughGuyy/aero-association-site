@@ -8,8 +8,9 @@ from .article_loader import _as_list, _parse_frontmatter
 from .settings import CONTENT_DIR
 
 
-CONTENT_KINDS = {"news", "notices", "projects"}
+CONTENT_KINDS = {"news", "notices", "projects", "aircraft"}
 CONTENT_FOLDERS = {
+    "aircraft": "06_机型目录/航模档案",
     "news": "05_新闻与通知/活动新闻",
     "notices": "05_新闻与通知/活动通知",
     "projects": "03_项目与竞赛/项目记录",
@@ -42,7 +43,7 @@ class ContentItem:
         return data
 
 
-def load_public_content(kind: str) -> list[ContentItem]:
+def load_public_content(kind: str, *, include_drafts: bool = False) -> list[ContentItem]:
     if kind not in CONTENT_KINDS:
         raise ValueError(f"Unsupported content kind: {kind}")
 
@@ -55,7 +56,8 @@ def load_public_content(kind: str) -> list[ContentItem]:
         if path.name.startswith("_"):
             continue
         item = _load_content_item(kind, path)
-        if item.metadata.get("status") != "published":
+        allowed_statuses = {"published", "draft"} if include_drafts and kind == "aircraft" else {"published"}
+        if item.metadata.get("status") not in allowed_statuses:
             continue
         if item.metadata.get("visibility") != "public":
             continue
