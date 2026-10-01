@@ -317,6 +317,9 @@ figure { margin: 0; }
   .notice-facts { grid-template-columns: 1fr; }
 }
 .aircraft-category { margin-top: 36px; }
+.flight-training-group { grid-column: 1 / -1; }
+.flight-training-group li { margin-bottom: 16px; }
+.flight-training-group li p { margin: 4px 0 0; color: var(--muted); font-size: 15px; }
 .aircraft-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 28px; }
 .aircraft-card { display: block; color: var(--text); text-decoration: none; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
 .aircraft-card:hover, .aircraft-card:focus-visible { border-color: var(--blue); }

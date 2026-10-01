@@ -10,7 +10,7 @@
   },
   "栏目": {"home": "首页", "guide": "新人指南", "resources": "技术资料", "aircraft": "机型目录", "projects": "项目与竞赛", "outreach": "科普活动", "updates": "新闻与通知"},
   "路线": {"design": "设计与制作", "fixed-wing": "固定翼入门", "fpv": "穿越机入门", "helicopter": "直升机入门"},
-  "资料分组": ["设计与制作", "遥控器与航电", "安全与训练参考"],
+  "资料分组": ["设计与制作", "遥控器与航电", "安全与训练参考", "飞行技巧训练"],
   "文章简称": {
     "fixed-wing-simulator": "固定翼模拟器", "moyi90": "魔翼 90 制作",
     "first-flight-check": "首飞检查与基础航线", "after-moyi90-airframes": "后续机型",

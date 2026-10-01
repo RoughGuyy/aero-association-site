@@ -33,7 +33,12 @@ const ROUTES = {
 const HANDBOOKS = [
   { title: '设计与制作', articles: ['design-making', 'equipment-flow', '3d-printing'] },
   { title: '遥控器与航电', articles: ['tx12-quickstart', 'opentx-logic', 'setup-radio', 'radio-curves'] },
-  { title: '安全与训练参考', articles: ['safety-rules', 'simulator-goals', 'aerobatics-training'] }
+  { title: '安全与训练参考', articles: ['safety-rules', 'simulator-goals'] },
+  { title: '飞行技巧训练', articles: ['flight-training', 'aerobatics-training'] }
+];
+const FLIGHT_COURSES = [
+  { title: '初级飞行教程', isCourse: true, articles: ['flight-training', 'flight-training-plan', 'flight-controls-turns', 'flight-track-wind', 'flight-takeoff-trim', 'flight-landing-goaround'] },
+  { title: '特技飞行教程', isCourse: true, articles: ['aerobatics-training', 'flight-aerobatic-aircraft', 'flight-aerobatic-foundations', 'flight-loop-roll', 'flight-aileron-roll', 'flight-immelmann', 'flight-cuban-eight', 'flight-reverse-cuban-eight', 'flight-point-rolls', 'flight-aerobatic-combinations', 'flight-aerobatic-variations'] }
 ];
 const PORTAL_ARTICLES = {
   'association-intro': 'home', 'newcomer-path': 'guide', 'resource-center': 'resources',
@@ -68,7 +73,7 @@ function getArticleContext(id, requestedRoute = '') {
   for (const [key, route] of Object.entries(ROUTES)) {
     if (route.articles.includes(id)) return { key, ...route, isRoute: true };
   }
-  const group = HANDBOOKS.find(item => item.articles.includes(id));
+  const group = [...FLIGHT_COURSES, ...HANDBOOKS].find(item => item.articles.includes(id));
   return group ? { ...group, key: '', references: [], isRoute: false } : null;
 }
 function articleHref(id, route = '', returnId = '') {
@@ -93,7 +98,7 @@ function readLocation(url) {
 function pageHref(page) { return page === 'home' ? siteHref() : siteHref('?page=' + page); }
 function contentHref(kind, id) { return siteHref('?' + new URLSearchParams({ kind, id }).toString()); }
 function chapterNeighbours(id, context) {
-  if (!context?.isRoute) return { previous: '', next: '' };
+  if (!context?.isRoute && !context?.isCourse) return { previous: '', next: '' };
   const index = context.articles.indexOf(id);
   if (index < 0) return { previous: '', next: '' };
   return { previous: context.articles[index - 1] || '', next: context.articles[index + 1] || '' };
@@ -210,7 +215,7 @@ function renderGuide(article) {
 }
 function renderResources(article) {
   const routeGroups = Object.entries(ROUTES).filter(([key]) => key !== 'design').map(([key, route]) => ({ ...route, key }));
-  return `<div class="container page">${breadcrumbs([{ label: PAGES.resources.title }])}${pageHeader(article.title || PAGES.resources.title, article.summary)}<div class="guide-intro markdown-body">${renderMarkdown(stripTitle(article.body))}</div><div class="resource-grid">${[...routeGroups, ...HANDBOOKS].map(group => `<section class="resource-group"><h2>${escapeHtml(group.title)}</h2><ul>${group.articles.filter(id => allArticles.some(item => item.id === id)).map(id => `<li><a href="${articleHref(id, group.key || '')}">${escapeHtml(articleTitle(id))}</a></li>`).join('')}</ul></section>`).join('')}</div></div>`;
+  return `<div class="container page">${breadcrumbs([{ label: PAGES.resources.title }])}${pageHeader(article.title || PAGES.resources.title, article.summary)}<div class="guide-intro markdown-body">${renderMarkdown(stripTitle(article.body))}</div><div class="resource-grid">${[...routeGroups, ...HANDBOOKS].map(group => `<section class="resource-group${group.title === '飞行技巧训练' ? ' flight-training-group' : ''}"><h2>${escapeHtml(group.title)}</h2><ul>${group.articles.filter(id => allArticles.some(item => item.id === id)).map(id => `<li><a href="${articleHref(id, group.key || '')}">${escapeHtml(articleTitle(id))}</a>${group.title === '飞行技巧训练' ? `<p>${escapeHtml(allArticles.find(item => item.id === id)?.summary || '')}</p>` : ''}</li>`).join('')}</ul></section>`).join('')}</div></div>`;
 }
 function renderToc(body, inline = false) {
   const headings = extractHeadings(body);
@@ -227,7 +232,7 @@ function renderPortal(article, page, content = currentContent) {
   return `<div class="container page">${isMainPage ? '' : breadcrumbs(crumbs)}${pageHeader(article.title, article.summary)}<div class="${hasSideToc ? 'portal-layout' : 'portal-reading'}"><div>${hasSideToc ? '' : renderToc(body, true)}<article class="markdown-body${isMainPage && page === 'projects' ? ' competition-copy' : ''}">${renderMarkdown(body)}</article>${renderMedia(article.media || [])}</div>${hasSideToc ? renderToc(body) : ''}</div>${records}</div>`;
 }
 function renderSidebar(context, id) {
-  if (!context.isRoute || context.articles.length < 2 || !context.articles.includes(id)) return '';
+  if ((!context.isRoute && !context.isCourse) || context.articles.length < 2 || !context.articles.includes(id)) return '';
   const link = articleId => `<a class="chapter" href="${articleHref(articleId, context.key)}"${id === articleId ? ' aria-current="page"' : ''}>${escapeHtml(articleTitle(articleId, true))}</a>`;
   return `<aside class="route-sidebar" aria-label="${escapeAttr(context.title)}目录"><h2>${escapeHtml(context.title)}</h2><nav>${context.articles.map(link).join('')}</nav></aside>`;
 }
@@ -236,25 +241,30 @@ function renderReader(article, context, state) {
   const isReference = context.isRoute && !context.articles.includes(article.id);
   const returnId = context.articles.includes(state.returnId) ? state.returnId : context.articles[0];
   const siblings = chapterNeighbours(article.id, context);
-  const adjacent = (id, rel) => `<a rel="${rel}" href="${escapeAttr(articleHref(id, context.key))}"><small>${escapeHtml(wording('阅读', rel === 'prev' ? '上一篇' : '下一篇'))}</small>${escapeHtml(articleTitle(id, true))}</a>`;
+  const adjacent = (id, rel) => `<a rel="${rel}" href="${escapeAttr(articleHref(id, context.key))}"><small>${context.isCourse ? (rel === 'prev' ? '上一部分' : '下一部分') : escapeHtml(wording('阅读', rel === 'prev' ? '上一篇' : '下一篇'))}</small>${escapeHtml(articleTitle(id, true))}</a>`;
   const sidebar = renderSidebar(context, article.id);
   const subject = isReference ? getArticleContext(article.id) : context;
   const isAircraftRoute = subject?.isRoute && subject.key !== 'design';
   const crumbs = [{ label: isAircraftRoute ? PAGES.guide.title : PAGES.resources.title, href: pageHref(isAircraftRoute ? 'guide' : 'resources') }, { label: subject?.title || article.title }];
   const safetyLink = `<a href="${escapeAttr(articleHref('safety-rules', context.key, article.id))}">${escapeHtml(articleTitle('safety-rules', true))}</a>`;
   const safety = isAircraftRoute && !isReference ? `<p class="route-safety">${escapeHtml(wording('阅读', '安全提示')).replace('{安全链接}', safetyLink)}</p>` : '';
-  const chapters = context.isRoute && !isReference && (siblings.previous || siblings.next) ? `<nav class="chapter-footer" aria-label="章节导航">${siblings.previous ? adjacent(siblings.previous, 'prev') : ''}${siblings.next ? adjacent(siblings.next, 'next') : ''}</nav>` : '';
+  const chapters = (context.isRoute || context.isCourse) && !isReference && (siblings.previous || siblings.next) ? `<nav class="chapter-footer" aria-label="章节导航">${siblings.previous ? adjacent(siblings.previous, 'prev') : ''}${siblings.next ? adjacent(siblings.next, 'next') : ''}</nav>` : '';
   return `<div class="reading-layout${sidebar ? '' : ' reading-single'}">${sidebar}<div class="reading-main">${breadcrumbs(crumbs)}${isReference ? `<div class="return-route"><a href="${escapeAttr(articleHref(returnId, context.key))}">← ${escapeHtml(wording('阅读', '返回'))}${escapeHtml(articleTitle(returnId, true))}</a></div>` : ''}${pageHeader(article.title, article.summary)}${safety}${renderToc(body, true)}<article class="markdown-body">${renderMarkdown(body)}</article>${renderMedia(article.media || [])}${chapters}</div></div>`;
 }
 function aircraftLabels(item) {
   return [item.category, item.service_status].filter(Boolean).map(escapeHtml).join(' · ');
 }
+// 生命周期随页面刷新结束；站内返回目录时保留每架飞机的位置。
+const aircraftRandomRanks = new Map();
 function renderAircraftDirectory(items) {
-  const categories = [...new Set(items.map(item => item.category || '其他'))];
-  return `<div class="container page">${breadcrumbs([{ label: PAGES.aircraft.title }])}${pageHeader(PAGES.aircraft.title, '记录协会与成员的航模，以及它们和我们一起经历的故事。')}${items.some(item => item.status === 'draft') ? '<p class="aircraft-draft">本地草稿预览：草稿不会出现在正式发布的网站上。</p>' : ''}${!items.length ? '<p>航模档案正在整理。</p>' : categories.map(category => `<section class="aircraft-category"><h2>${escapeHtml(category)}</h2><div class="aircraft-grid">${items.filter(item => (item.category || '其他') === category).map(item => {
+  for (const item of items) {
+    if (!aircraftRandomRanks.has(item.id)) aircraftRandomRanks.set(item.id, Math.random());
+  }
+  items = [...items].sort((a, b) => aircraftRandomRanks.get(a.id) - aircraftRandomRanks.get(b.id) || a.id.localeCompare(b.id));
+  return `<div class="container page">${breadcrumbs([{ label: PAGES.aircraft.title }])}${pageHeader(PAGES.aircraft.title, '记录协会与成员的航模，以及它们和我们一起经历的故事。')}${items.some(item => item.status === 'draft') ? '<p class="aircraft-draft">本地草稿预览：草稿不会出现在正式发布的网站上。</p>' : ''}${!items.length ? '<p>航模档案正在整理。</p>' : `<div class="aircraft-grid">${items.map(item => {
     const cover = safeUrl(item.cover, true);
     return `<a class="aircraft-card" href="${escapeAttr(contentHref('aircraft', item.id))}">${cover ? `<img src="${escapeAttr(cover)}" alt="${escapeAttr(item.cover_alt || item.title)}" loading="lazy">` : ''}<div class="aircraft-card-copy"><p class="record-meta">${aircraftLabels(item)}${item.status === 'draft' ? ' · 草稿' : ''}</p><h3>${escapeHtml(item.title)}</h3>${item.summary ? `<p>${escapeHtml(item.summary)}</p>` : ''}<span class="text-link">查看档案</span></div></a>`;
-  }).join('')}</div></section>`).join('')}</div>`;
+  }).join('')}</div>`}</div>`;
 }
 function renderAircraftDetail(item) {
   const back = pageHref('aircraft');
@@ -457,7 +467,8 @@ function renderInline(text) {
     html += escapeHtml(text.slice(position, match.index));
     if (match[1] !== undefined) {
       const src = safeUrl(match[2], true);
-      html += src ? `<img src="${escapeAttr(src)}" alt="${escapeAttr(match[1])}" loading="lazy">` : escapeHtml(match[1]);
+      const dimensions = match[2].startsWith('/knowledge/assets/images/飞行技巧训练/') ? ' width="1516" height="1071"' : '';
+      html += src ? `<img src="${escapeAttr(src)}" alt="${escapeAttr(match[1])}"${dimensions} loading="lazy">` : escapeHtml(match[1]);
     } else if (match[3] !== undefined) {
       const href = safeUrl(match[4]);
       const external = /^https?:\/\//i.test(href) || (href.startsWith('/') && !href.startsWith(SITE_ROOT.pathname + '?') && href !== SITE_ROOT.pathname);
@@ -493,4 +504,4 @@ async function init() {
   await navigate(location.href, false);
 }
 if (typeof document !== 'undefined' && document.getElementById('main')) init();
-if (typeof module !== 'undefined' && module.exports) module.exports = { setSiteCopy, ROUTES, HANDBOOKS, PAGES, PORTAL_ARTICLES, getArticleContext, articleHref, readLocation, chapterNeighbours, renderMarkdown, extractHeadings, renderSidebar, renderReader, renderGuide, renderResources, renderContent, renderAircraftDirectory, renderAircraftDetail, renderHero, renderHome, renderPortal, renderProjectRecords, renderUpdates, safeUrl };
+if (typeof module !== 'undefined' && module.exports) module.exports = { setSiteCopy, ROUTES, HANDBOOKS, FLIGHT_COURSES, PAGES, PORTAL_ARTICLES, getArticleContext, articleHref, readLocation, chapterNeighbours, renderMarkdown, extractHeadings, renderSidebar, renderReader, renderGuide, renderResources, renderContent, renderAircraftDirectory, renderAircraftDetail, renderHero, renderHome, renderPortal, renderProjectRecords, renderUpdates, safeUrl };
