@@ -21,7 +21,7 @@ airframe_id:
 # 类型：固定翼、穿越机、直升机、多旋翼或其他。
 category: 固定翼
 # 一句话介绍特点或最值得讲的故事，供目录卡片展示。
-summary: “劳元的终极梦魇”：反扭极大，起飞与降落都极难操控的噩梦机。
+summary: “牢袁的终极梦魇”：反扭极大，起飞与降落都极难操控的噩梦机。
 # 封面地址，例如 /aircraft-assets/SU-57.jpg，对应“发布资源/机型目录配图”。
 # 文件名有空格和括号时用编码，例如 /aircraft-assets/L-39%20%281%29.jpg。
 cover: /aircraft-assets/La-7.jpg
