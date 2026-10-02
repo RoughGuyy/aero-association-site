@@ -4,8 +4,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 
-function site() {
-  const context = { URL, URLSearchParams, module: { exports: {} }, document: {
+function site(random = Math.random) {
+  const context = { URL, URLSearchParams, Math: Object.assign(Object.create(Math), { random }), module: { exports: {} }, document: {
     currentScript: { src: 'https://example.github.io/aero-association-site/app.js' },
     getElementById: () => null
   }};
@@ -38,4 +38,30 @@ test('empty aircraft directory has no fabricated records', () => {
   const html = site().renderAircraftDirectory([]);
   assert.match(html, /航模档案正在整理/);
   assert.ok(!html.includes('class="aircraft-card"'));
+});
+
+test('different aircraft types share a single directory grid', () => {
+  const html = site().renderAircraftDirectory([
+    { id: 'a', title: '飞机 A', category: '电动3D特技机' },
+    { id: 'b', title: '飞机 B', category: '电动竞速滑翔机' }
+  ]);
+  assert.equal((html.match(/class="aircraft-grid"/g) || []).length, 1);
+  assert.equal((html.match(/class="aircraft-card"/g) || []).length, 2);
+  assert.ok(!html.includes('<h2>电动3D特技机</h2>'));
+  assert.ok(!html.includes('<h2>电动竞速滑翔机</h2>'));
+});
+
+test('aircraft order is randomized per page lifetime and stable on return', () => {
+  const items = ['a', 'b', 'c'].map(id => ({ id, title: id, category: '固定翼' }));
+  const order = html => [...html.matchAll(/kind=aircraft&amp;id=([abc])/g)].map(match => match[1]);
+  let calls = 0;
+  const ranks = [0.9, 0.1, 0.5];
+  const app = site(() => ranks[calls++]);
+  assert.deepEqual(order(app.renderAircraftDirectory(items)), ['b', 'c', 'a']);
+  assert.deepEqual(order(app.renderAircraftDirectory([...items].reverse())), ['b', 'c', 'a']);
+  assert.equal(calls, 3);
+  assert.deepEqual(items.map(item => item.id), ['a', 'b', 'c']);
+  let index = 0;
+  const fresh = site(() => [0.1, 0.5, 0.9][index++]);
+  assert.deepEqual(order(fresh.renderAircraftDirectory(items)), ['a', 'b', 'c']);
 });

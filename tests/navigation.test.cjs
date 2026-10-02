@@ -9,6 +9,44 @@ const copy = {
 };
 site.setSiteCopy(copy);
 
+test('flight training exposes two overviews and navigation stays within each course', () => {
+  const vm = require('node:vm');
+  const sandbox = { module: { exports: {} }, URL, URLSearchParams };
+  vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../frontend/app.js'), 'utf8'), sandbox);
+  const app = sandbox.module.exports;
+  app.setSiteCopy(copy);
+  const group = app.HANDBOOKS.find(item => item.title === '飞行技巧训练');
+  assert.deepEqual(Array.from(group.articles), ['flight-training', 'aerobatics-training']);
+  const folder = path.join(__dirname, '../网站内容/02_技术资料/固定翼飞行训练');
+  const articles = fs.readdirSync(folder).filter(name => name.endsWith('.md') && !name.startsWith('_')).map(name => {
+    const raw = fs.readFileSync(path.join(folder, name), 'utf8');
+    return { id: raw.match(/^id: (.+)$/m)[1], title: raw.match(/^title: (.+)$/m)[1] };
+  });
+  articles.push({ id: 'aerobatics-training', title: '特技飞行教程' });
+  sandbox.trainingArticles = articles;
+  vm.runInNewContext('allArticles = trainingArticles', sandbox);
+  const html = app.renderResources({ body: '' });
+  assert.match(html, /<h2>飞行技巧训练<\/h2>/);
+  assert.ok(html.includes('article=flight-training'));
+  assert.ok(html.includes('article=aerobatics-training'));
+  assert.ok(!html.includes('article=flight-controls-turns'));
+  for (const course of app.FLIGHT_COURSES) {
+    for (const id of course.articles) {
+      const context = app.getArticleContext(id);
+      assert.equal(context.title, course.title);
+      const reader = app.renderReader({ id, title: id, body: '正文', media: [] }, context, {});
+      assert.ok(reader.includes(course.title + '目录'));
+      const neighbours = app.chapterNeighbours(id, context);
+      if (neighbours.previous) { assert.ok(course.articles.includes(neighbours.previous)); assert.ok(reader.includes('article=' + neighbours.previous)); assert.ok(reader.includes('上一部分')); }
+      if (neighbours.next) { assert.ok(course.articles.includes(neighbours.next)); assert.ok(reader.includes('article=' + neighbours.next)); assert.ok(reader.includes('下一部分')); }
+    }
+    const first = app.chapterNeighbours(course.articles[0], app.getArticleContext(course.articles[0]));
+    const lastId = course.articles[course.articles.length - 1];
+    assert.equal(first.previous, '');
+    assert.equal(app.chapterNeighbours(lastId, app.getArticleContext(lastId)).next, '');
+  }
+});
+
 function articleBody(relativePath) {
   return fs.readFileSync(path.join(__dirname, '..', '网站内容', relativePath), 'utf8').replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, '');
 }
