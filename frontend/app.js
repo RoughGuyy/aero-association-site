@@ -34,7 +34,8 @@ const HANDBOOKS = [
   { title: '设计与制作', articles: ['design-making', 'equipment-flow', '3d-printing'] },
   { title: '遥控器与航电', articles: ['tx12-quickstart', 'opentx-logic', 'setup-radio', 'radio-curves'] },
   { title: '安全与训练参考', articles: ['safety-rules', 'simulator-goals'] },
-  { title: '飞行技巧训练', articles: ['flight-training', 'aerobatics-training'] }
+  { title: '飞行技巧训练', articles: ['flight-training', 'aerobatics-training'] },
+  { title: '航模运动知识', articles: ['fai-model-classification'] }
 ];
 const FLIGHT_COURSES = [
   { title: '初级飞行教程', isCourse: true, articles: ['flight-training', 'flight-training-plan', 'flight-controls-turns', 'flight-track-wind', 'flight-takeoff-trim', 'flight-landing-goaround'] },

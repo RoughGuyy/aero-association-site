@@ -32,7 +32,7 @@ cover_alt: 全球黄色 Ultimate 双翼航模
 # 归属仅在详情页展示，目录卡片不展示；不要把归属填到 cover_alt。
 ownership:
 # 飞机状态，例如“在用”“维修中”“退役”；这是机体状态，不是稿件状态。
-service_status: 适航
+service_status: 适航待售
 # 最近确认机体状态的日期，格式 YYYY-MM-DD，例如 2026-10-01。
 status_updated:
 # 来到协会的日期，知道多少写多少，例如 2024 或 2024-09；不要猜具体日子。
