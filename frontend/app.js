@@ -253,7 +253,7 @@ function renderReader(article, context, state) {
   return `<div class="reading-layout${sidebar ? '' : ' reading-single'}">${sidebar}<div class="reading-main">${breadcrumbs(crumbs)}${isReference ? `<div class="return-route"><a href="${escapeAttr(articleHref(returnId, context.key))}">← ${escapeHtml(wording('阅读', '返回'))}${escapeHtml(articleTitle(returnId, true))}</a></div>` : ''}${pageHeader(article.title, article.summary)}${safety}${renderToc(body, true)}<article class="markdown-body">${renderMarkdown(body)}</article>${renderMedia(article.media || [])}${chapters}</div></div>`;
 }
 function aircraftLabels(item) {
-  return [item.category, item.service_status].filter(Boolean).map(escapeHtml).join(' · ');
+  return [item.category, item.service_status, item.ownership].filter(Boolean).map(escapeHtml).join(' · ');
 }
 // 生命周期随页面刷新结束；站内返回目录时保留每架飞机的位置。
 const aircraftRandomRanks = new Map();
