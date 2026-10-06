@@ -19,7 +19,11 @@ test('aircraft directory and detail keep repository paths and ownership', () => 
   const app = site();
   const item = { id: 'su57', kind: 'aircraft', title: 'SU-57', category: '固定翼', ownership: '个人', status: 'draft', cover: '/aircraft-assets/SU-57.jpg', gallery: ['/aircraft-assets/L-39%20%281%29.jpg'], body: '## 故事\n\n从大胡子手中购入。\n\n## 空章节\n\n<!-- 填写提示 -->' };
   const listing = app.renderAircraftDirectory([item]);
-  assert.ok(!listing.includes('个人'));
+  assert.match(listing, /<p class="record-meta">固定翼 · 个人 · 草稿<\/p>/);
+  const published = { ...item, service_status: '适航', status: 'published' };
+  assert.match(app.renderAircraftDirectory([published]), /<p class="record-meta">固定翼 · 适航 · 个人<\/p>/);
+  assert.match(app.renderAircraftDirectory([{ ...published, ownership: '' }]), /<p class="record-meta">固定翼 · 适航<\/p>/);
+  assert.match(app.renderAircraftDirectory([{ ...published, ownership: '<协会>' }]), /固定翼 · 适航 · &lt;协会&gt;/);
   assert.match(listing, /aero-association-site\/\?kind=aircraft&amp;id=su57/);
   const html = app.renderContent(item);
   assert.match(html, /个人/);

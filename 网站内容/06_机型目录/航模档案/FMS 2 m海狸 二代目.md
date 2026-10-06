@@ -21,7 +21,7 @@ airframe_id:
 # 类型：固定翼、穿越机、直升机、多旋翼或其他。
 category: 电动像真机
 # 一句话介绍特点或最值得讲的故事，供目录卡片展示。
-summary: 涵道高手愧疚买回的红白海狸：换了新衣，还是那个肥硕的老脾气。
+summary: 涵道高手牢肖因为愧疚主张买回的红白海狸：换了新衣，还是那个肥硕的老脾气。
 # 封面地址，例如 /aircraft-assets/SU-57.jpg，对应“发布资源/机型目录配图”。
 # 文件名有空格和括号时用编码，例如 /aircraft-assets/L-39%20%281%29.jpg。
 cover: /aircraft-assets/%E6%B5%B7%E7%8B%B8%E4%BA%8C%E4%BB%A3%E7%9B%AE.jpg
@@ -29,8 +29,8 @@ cover: /aircraft-assets/%E6%B5%B7%E7%8B%B8%E4%BA%8C%E4%BB%A3%E7%9B%AE.jpg
 # 卡片封面会居中裁切填满图片框，主体尽量居中；详情封面完整展示。
 cover_alt: FMS 2m 海狸 二代目航模
 # 经确认的归属，例如“协会公共航模”；个人航模请如实说明。
-# 归属仅在详情页展示，目录卡片不展示；不要把归属填到 cover_alt。
-ownership:
+# 归属在目录卡片的类别和机体状态之后显示，也在详情页展示；不要把归属填到 cover_alt。
+ownership: 协会
 # 飞机状态，例如“在用”“维修中”“退役”；这是机体状态，不是稿件状态。
 service_status: 适航
 # 最近确认机体状态的日期，格式 YYYY-MM-DD，例如 2026-10-01。
