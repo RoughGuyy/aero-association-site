@@ -30,7 +30,7 @@ cover: /aircraft-assets/YHY%E7%9A%8490mmJ-10.jpg
 cover_alt: YHY 90mm 歼-10 航模
 # 经确认的归属，例如“协会公共航模”；个人航模请如实说明。
 # 归属在目录卡片的类别和机体状态之后显示，也在详情页展示；不要把归属填到 cover_alt。
-ownership: 牢袁
+ownership: 袁
 # 飞机状态，例如“在用”“维修中”“退役”；这是机体状态，不是稿件状态。
 service_status: 适航
 # 最近确认机体状态的日期，格式 YYYY-MM-DD，例如 2026-10-01。

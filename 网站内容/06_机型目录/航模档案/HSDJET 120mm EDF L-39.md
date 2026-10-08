@@ -22,7 +22,7 @@ cover: /aircraft-assets/L-39%20%284%29.jpg
 # 描述封面实际画面，例如“L-39 航模停放在草地上”；不要只写“图片”。
 cover_alt: HSDJET 120mm EDF L-39 航模
 # 经确认的归属，例如“协会公共航模”；个人航模请如实说明。
-ownership: 牢袁
+ownership: 袁
 # 飞机状态，例如“在用”“维修中”“退役”；这是机体状态，不是稿件状态。
 service_status: 适航待售
 # 最近确认机体状态的日期，格式 YYYY-MM-DD，例如 2026-10-01。
