@@ -22,7 +22,7 @@ airframe_id:
 # 类型：固定翼、穿越机、直升机、多旋翼或其他。
 category: 电动像真机
 # 一句话介绍特点或最值得讲的故事，供目录卡片展示。
-summary: 轻巧好飞的公园休闲机，是王涵在南门体育场的常客。
+summary: 2m大海狸的幼年体，只有250g，连倒飞航线都能手拿把掐。
 # 封面地址，例如 /aircraft-assets/SU-57.jpg，对应“发布资源/机型目录配图”。
 # 文件名有空格和括号时用编码，例如 /aircraft-assets/L-39%20%281%29.jpg。
 cover: /aircraft-assets/fms-beaver-800mm-wanghan-01-177e40692b75.jpg

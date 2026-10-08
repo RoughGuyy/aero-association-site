@@ -22,7 +22,7 @@ airframe_id:
 # 类型：固定翼、穿越机、直升机、多旋翼或其他。
 category: 电动像真机
 # 一句话介绍特点或最值得讲的故事，供目录卡片展示。
-summary: 王涵的 Warbird 初体验，小机身对风敏感，上手后机动灵活。
+summary: 小飞机也有大反扭，首飞大跳，后来成了南门体育场的桨叶杀手。
 # 封面地址，例如 /aircraft-assets/SU-57.jpg，对应“发布资源/机型目录配图”。
 # 文件名有空格和括号时用编码，例如 /aircraft-assets/L-39%20%281%29.jpg。
 cover: /aircraft-assets/fms-f4u-800mm-wanghan-01-a3908438714c.jpg
