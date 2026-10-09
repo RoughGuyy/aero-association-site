@@ -22,7 +22,7 @@ airframe_id:
 # 类型：固定翼、穿越机、直升机、多旋翼或其他。
 category: 电动F3p
 # 一句话介绍特点或最值得讲的故事，供目录卡片展示。
-summary: 协会于 2025 年冬采购的双翼 F3P，快拆设计罕见，起飞重量达到 500 g。
+summary: 快拆是真方便，500g也是真沉；这架双翼F3P的脾气还没人摸透。
 # 封面地址，例如 /aircraft-assets/SU-57.jpg，对应“发布资源/机型目录配图”。
 # 文件名有空格和括号时用编码，例如 /aircraft-assets/L-39%20%281%29.jpg。
 cover: /aircraft-assets/horizon-4site-01-8025e37f9bef.jpg

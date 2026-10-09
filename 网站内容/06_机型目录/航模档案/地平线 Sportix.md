@@ -22,7 +22,7 @@ airframe_id:
 # 类型：固定翼、穿越机、直升机、多旋翼或其他。
 category: 电动运动机
 # 一句话介绍特点或最值得讲的故事，供目录卡片展示。
-summary: 协会于 2025 年冬采购的 F3A 入门练习机，做工精致，动作手感干净利落。
+summary: 做工漂亮，动作利落，休闲暴力皆能驾驭，除了贵真挑不出什么毛病。
 # 封面地址，例如 /aircraft-assets/SU-57.jpg，对应“发布资源/机型目录配图”。
 # 文件名有空格和括号时用编码，例如 /aircraft-assets/L-39%20%281%29.jpg。
 cover: /aircraft-assets/horizon-sportix-01-5a4db01653ed.jpg

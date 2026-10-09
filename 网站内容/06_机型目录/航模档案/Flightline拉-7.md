@@ -30,7 +30,7 @@ cover: /aircraft-assets/La-7.jpg
 cover_alt: Flightline 拉-7 航模
 # 经确认的归属，例如“协会公共航模”；个人航模请如实说明。
 # 归属在目录卡片的类别和机体状态之后显示，也在详情页展示；不要把归属填到 cover_alt。
-ownership: 牢袁
+ownership: 袁
 # 飞机状态，例如“在用”“维修中”“退役”；这是机体状态，不是稿件状态。
 service_status: 适航与修复交替
 # 最近确认机体状态的日期，格式 YYYY-MM-DD，例如 2026-10-01。
@@ -89,6 +89,10 @@ visibility: public
 ## 和我们一起经历的事
 
 使用者认为它先天设计不合理，反扭极大，起飞和降落都极难操控，是名副其实的噩梦机。
+
+![初代拉-7](/aircraft-assets/La-7%EF%BC%88%E4%B8%8A%E4%B8%96%E4%BB%A3%EF%BC%89.png)
+
+图为初代拉-7，该机曾三修四炸，最终未能爽飞。
 
 ## 今天的它
 

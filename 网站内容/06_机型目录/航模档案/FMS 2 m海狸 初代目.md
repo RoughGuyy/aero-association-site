@@ -24,7 +24,7 @@ category: 电动像真机
 summary: 2018 年入会的黑白海狸，最终没躲过一位涵道高手的入门练习。
 # 封面地址，例如 /aircraft-assets/SU-57.jpg，对应“发布资源/机型目录配图”。
 # 文件名有空格和括号时用编码，例如 /aircraft-assets/L-39%20%281%29.jpg。
-cover: /aircraft-assets/%E6%B5%B7%E7%8B%B8%E5%88%9D%E4%BB%A3%E7%9B%AE%20%281%29.png
+cover: /aircraft-assets/%E6%B5%B7%E7%8B%B8%E5%88%9D%E4%BB%A3%E7%9B%AE%20%282%29.png
 # 描述封面实际画面，例如“L-39 航模停放在草地上”；不要只写“图片”。
 # 卡片封面会居中裁切填满图片框，主体尽量居中；详情封面完整展示。
 cover_alt: FMS 2m 海狸 初代目航模
@@ -61,7 +61,7 @@ members: []
 # 多图写在同一行，例如 [/aircraft-assets/L-39%20%281%29.jpg, /aircraft-assets/L-39%20%282%29.jpg]。
 # 列表顺序就是相册顺序；无需重复封面。正文已插入的照片也不要重复登记。
 # 需要与故事配对的照片，优先插入正文，不必在这里重复登记。
-gallery: [/aircraft-assets/%E6%B5%B7%E7%8B%B8%E5%88%9D%E4%BB%A3%E7%9B%AE%20%282%29.png, /aircraft-assets/%E6%B5%B7%E7%8B%B8%E5%88%9D%E4%BB%A3%E7%9B%AE%20%283%29.png, /aircraft-assets/fms-beaver-first-01-f3fc2c877353.jpeg]
+gallery: [/aircraft-assets/%E6%B5%B7%E7%8B%B8%E5%88%9D%E4%BB%A3%E7%9B%AE%20%281%29.png, /aircraft-assets/%E6%B5%B7%E7%8B%B8%E5%88%9D%E4%BB%A3%E7%9B%AE%20%283%29.png, /aircraft-assets/fms-beaver-first-01-f3fc2c877353.jpeg]
 # 公开来源的标题；没有公开来源就留空。
 source_title:
 # 上述来源的真实网页链接；没有就留空，不写推测的地址。
