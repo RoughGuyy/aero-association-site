@@ -31,6 +31,10 @@ export function pinnedReply(question, entries = catalog) {
   const result = validateReply({matches: [{id: rule.id}]}, entries);
   return result.matches.length ? result : null;
 }
+// These requests are outside site navigation and must not consume model quota.
+export function isGenerationRequest(question) {
+  return /(?:忽略|绕过|无视).{0,16}(?:规则|指令|提示词)|(?:输出|显示|泄露).{0,12}(?:密钥|提示词|api.?key)|(?:写|生成|编写|实现|帮我做).{0,24}(?:代码|脚本|程序|作文|论文|诗歌)|(?:write|generate|create|implement).{0,35}(?:code|script|program|essay|poem)|(?:ignore|override).{0,25}(?:instruction|prompt|rule)/i.test(question);
+}
 async function cacheRequest(request, question, model) {
   const bytes = new TextEncoder().encode(model + system + JSON.stringify(catalog) + normalizeQuestion(question));
   const hash = [...new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))].map(x => x.toString(16).padStart(2, '0')).join('');
@@ -79,6 +83,7 @@ export default {
     let question;
     try { question = await readQuestion(request); }
     catch { return json({error: '请用 1—400 个字描述你想找的内容。'}, 400, origin); }
+    if (isGenerationRequest(question)) return json({matches: []}, 200, origin);
     const pinned = pinnedReply(question);
     if (pinned) return json(pinned, 200, origin);
     const cache = globalThis.caches?.default;
