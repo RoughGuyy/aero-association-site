@@ -8,12 +8,13 @@ import os
 import re
 import shutil
 from pathlib import Path
-from urllib.parse import unquote
+from urllib.parse import unquote, urlsplit
 
 from aero_association_agent.article_loader import article_tree, load_articles
 from aero_association_agent.content_loader import CONTENT_KINDS, load_public_content
 from aero_association_agent.settings import FRONTEND_DIR, PROJECT_ROOT, PUBLIC_ASSETS_DIR
 from aero_association_agent.site_copy import load_site_copy, render_index
+from aero_association_agent.site_structure import navigation_index
 
 
 OUTPUT_DIR = PROJECT_ROOT / "dist"
@@ -72,6 +73,7 @@ def referenced_public_files(texts: list[str]) -> list[tuple[Path, Path]]:
 
 
 def build(*, preview: bool = False) -> None:
+    navigation_index()  # Fail before touching the last build if structure references are invalid.
     output = OUTPUT_DIR.resolve()
     if output.parent != PROJECT_ROOT.resolve():
         raise RuntimeError("拒绝清理项目目录之外的构建目录")
@@ -99,6 +101,12 @@ def build(*, preview: bool = False) -> None:
     index = index.replace('href="/assets/', 'href="assets/')
     index = index.replace('href="/"', 'href="./"').replace('href="/?', 'href="?').replace('href="/#', 'href="./#')
     index = index.replace('src="/assets/', 'src="assets/')
+    endpoint = os.environ.get("AERO_GUIDE_API_URL", "").strip()
+    if endpoint:
+        parsed = urlsplit(endpoint)
+        if parsed.scheme != "https" or not parsed.netloc or parsed.username or any(c in endpoint for c in "<>\\"):
+            raise ValueError("AERO_GUIDE_API_URL 必须是 HTTPS 接口地址")
+        index = index.replace("</body>", f"<script>globalThis.AERO_GUIDE_API_URL={json.dumps(endpoint)};</script></body>")
     index = index.replace("</body>", f"{analytics_beacon()}</body>")
     index = index.replace(
         "<script defer",

@@ -17,7 +17,6 @@
         <img src="/assets/association-logo.png" alt="">
         <span><strong>{{站点.名称}}</strong><small>{{站点.学校}}</small></span>
       </a>
-      <button class="menu-toggle" id="menuToggle" type="button" aria-expanded="false" aria-controls="siteNav">栏目</button>
       <nav class="site-nav" id="siteNav" aria-label="官网栏目">
         <a href="/?page=guide" data-page="guide">{{栏目.guide}}</a>
         <a href="/?page=resources" data-page="resources">{{栏目.resources}}</a>
@@ -25,12 +24,26 @@
         <a href="/?page=projects" data-page="projects">{{栏目.projects}}</a>
         <a href="/?page=activities" data-page="activities">{{栏目.activities}}</a>
       </nav>
+      <div class="header-actions">
+      <button class="guide-toggle" id="guideToggle" type="button" aria-label="找内容" aria-haspopup="dialog" aria-controls="siteGuide"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><span>找内容</span></button>
+      <button class="menu-toggle" id="menuToggle" type="button" aria-expanded="false" aria-controls="siteNav"><span>栏目</span><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M3 8h18M3 16h18"/></svg></button>
+      </div>
     </div>
   </header>
   <main id="main" tabindex="-1">
     <div class="container page"><h1>{{站点.名称}}</h1><p>正在加载内容…</p></div>
     <noscript><p>请启用 JavaScript 查看{{栏目.guide}}和活动内容。QQ 交流群：{{站点.QQ群}}；活动地点：{{站点.地点}}。</p></noscript>
   </main>
+  <dialog id="siteGuide" class="site-guide" aria-labelledby="siteGuideTitle">
+    <button class="site-guide-close" type="button" data-guide-close aria-label="关闭站内导览"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+    <div class="site-guide-body">
+      <h2 id="siteGuideTitle">你想找什么</h2>
+      <p class="site-guide-english" lang="en">What are you looking for?</p>
+      <form id="siteGuideForm"><label class="sr-only" for="siteGuideQuestion">描述你想找的内容</label><div class="site-guide-input"><input id="siteGuideQuestion" name="question" type="text" maxlength="400" required autocomplete="off"><button type="submit" aria-label="查找"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></button></div></form>
+      <div id="siteGuideResults" class="site-guide-results" aria-live="polite" aria-atomic="true"></div>
+      <p class="site-guide-note">support by deepseek</p>
+    </div>
+  </dialog>
   <footer class="site-footer">
     <div class="container footer-inner"><span class="footer-name">{{站点.全称}}</span><div class="footer-contact"><div class="footer-location"><span class="footer-label">协会地点</span><span>{{站点.地点}}</span></div><div class="footer-community"><span class="footer-label">日常交流</span><span>QQ 交流群 · {{站点.QQ群}}</span><a href="https://qm.qq.com/q/71RzbkmIZG" target="_blank" rel="noopener noreferrer">加入交流群</a></div></div></div>
   </footer>

@@ -14,3 +14,13 @@ AGENTS.md
 tmp/
 .env.production
 dist/
+
+.preview-build/
+.preview-previous/
+cloudflare/node_modules/
+cloudflare/generated/
+cloudflare/.wrangler/
+.wrangler/
+
+# 证书仅保留本地，暂不公开
+/发布资源/官网配图/竞赛获奖/

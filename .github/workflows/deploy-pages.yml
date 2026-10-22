@@ -26,6 +26,7 @@ jobs:
       - name: 生成静态网站
         env:
           CLOUDFLARE_WEB_ANALYTICS_TOKEN: f8b9eb85102a48a993b16063414379ea
+          AERO_GUIDE_API_URL: ${{ vars.AERO_GUIDE_API_URL }}
         run: python build_static_site.py
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4

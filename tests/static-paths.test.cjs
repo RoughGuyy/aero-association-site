@@ -5,7 +5,7 @@ const vm = require('node:vm');
 const path = require('node:path');
 
 function subpathSite() {
-  const context = { URL, module: { exports: {} }, document: {
+  const context = { AERO_SITE_STRUCTURE: require('../网站内容/站点结构.json'), URL, module: { exports: {} }, document: {
     currentScript: { src: 'https://example.github.io/aero-association-site/app.js' },
     getElementById: () => null
   }};
@@ -15,8 +15,8 @@ function subpathSite() {
 
 test('repository-path tutorial links stay in the current tab', () => {
   const site = subpathSite();
-  const html = site.renderMarkdown('[安全须知](/?article=safety-rules)');
-  assert.ok(html.includes('/aero-association-site/?article=safety-rules'));
+  const html = site.renderMarkdown('[锂电池与充电](/?article=battery-charging)');
+  assert.ok(html.includes('/aero-association-site/?article=battery-charging'));
   assert.ok(!html.includes('target="_blank"'));
 });
 

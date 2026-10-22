@@ -7,6 +7,7 @@ import json
 import re
 
 from .settings import CONTENT_DIR, FRONTEND_DIR
+from .site_structure import load_structure
 
 
 def load_site_copy() -> dict:
@@ -17,6 +18,7 @@ def load_site_copy() -> dict:
             result[key] = json.loads(path.read_text(encoding="utf-8-sig"))
         except json.JSONDecodeError as exc:
             raise ValueError(f"{path.name}：第 {exc.lineno} 行，第 {exc.colno} 列格式有误") from exc
+    result["common"]["栏目"] = {node["page"]: node["title"] for node in load_structure()["pages"]}
     return result
 
 
@@ -33,4 +35,6 @@ def render_index() -> str:
             value = value[key]
         return html.escape(str(value), quote=True)
 
-    return re.sub(r"\{\{([^{}]+)\}\}", replace, (FRONTEND_DIR / "index.html").read_text(encoding="utf-8"))
+    rendered = re.sub(r"\{\{([^{}]+)\}\}", replace, (FRONTEND_DIR / "index.html").read_text(encoding="utf-8"))
+    structure = json.dumps(load_structure(), ensure_ascii=False).replace("<", "\\u003c")
+    return rendered.replace("</head>", f"<script>globalThis.AERO_SITE_STRUCTURE={structure};</script></head>")

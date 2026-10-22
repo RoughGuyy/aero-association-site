@@ -1,0 +1,19 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "aero-association-guide",
+  "main": "worker.mjs",
+  "account_id": "a29d258e7af93058caf4a5124c0f240a",
+  "compatibility_date": "2026-10-22",
+  "workers_dev": true,
+  "build": { "command": "python build_catalog.py" },
+  "vars": {
+    "MODEL": "deepseek-flash",
+    "DAILY_LIMIT": "100",
+    "ALLOWED_ORIGINS": "https://roughguyy.github.io,http://127.0.0.1:8000,http://localhost:8000"
+  },
+  "durable_objects": {
+    "bindings": [{ "name": "GUIDE_BUDGET", "class_name": "GuideBudget" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["GuideBudget"] }],
+  "observability": { "enabled": false }
+}

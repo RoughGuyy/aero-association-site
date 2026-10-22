@@ -5,7 +5,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 function site(random = Math.random) {
-  const context = { URL, URLSearchParams, Math: Object.assign(Object.create(Math), { random }), module: { exports: {} }, document: {
+  const context = { AERO_SITE_STRUCTURE: require('../网站内容/站点结构.json'), URL, URLSearchParams, Math: Object.assign(Object.create(Math), { random }), module: { exports: {} }, document: {
     currentScript: { src: 'https://example.github.io/aero-association-site/app.js' },
     getElementById: () => null
   }};
