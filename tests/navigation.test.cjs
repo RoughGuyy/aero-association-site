@@ -26,7 +26,7 @@ test('flight training exposes two overviews and navigation stays within each cou
   sandbox.trainingArticles = articles;
   vm.runInNewContext('allArticles = trainingArticles', sandbox);
   const html = app.renderResources({ body: '' });
-  assert.match(html, /<h2>飞行技巧训练<\/h2>/);
+  assert.match(html, /<h3>飞行技巧训练<\/h3>/);
   assert.ok(html.includes('article=flight-training'));
   assert.ok(html.includes('article=aerobatics-training'));
   assert.ok(!html.includes('article=flight-controls-turns'));
@@ -79,7 +79,6 @@ test('homepage overlays live text on one twilight image without extra hero copy'
   assert.ok(!html.includes('/assets/hero-sailplane-concept-v1.png'));
   assert.ok(!html.includes('/assets/hero-aircraft.jpg'));
   assert.ok(!html.includes('自主设计的 J10'));
-  assert.ok(html.includes('/assets/cuadc-field.jpg'));
   assert.equal((html.match(/src="\/assets\/cuadc-field.jpg"/g) || []).length, 1);
   assert.ok(html.includes('与空天技术相关的学科竞赛'));
   assert.ok(!html.includes('保研加分'));
@@ -104,8 +103,8 @@ test('hero shows school, association names and an artistic guide link; introduct
   assert.ok(!hero.includes('QQ'));
   assert.ok(!hero.includes('451851387'));
   assert.ok(!hero.includes('src=""'));
-  assert.ok(html.includes('451851387'));
-  assert.ok(html.includes('/assets/recruitment-qq-qr.svg'));
+  assert.ok(!html.includes('451851387'));
+  assert.ok(!html.includes('/assets/recruitment-qq-qr.svg'));
 });
 
 test('cinematic hero is height-limited above a light reading surface with local art fonts', () => {
@@ -147,10 +146,7 @@ test('published twilight artwork uses the intended source crop', () => {
   const css = fs.readFileSync(path.join(__dirname, '../frontend/styles.css'), 'utf8');
   assert.match(css, /\.hero-scene \{[^}]*aspect-ratio: 2240 \/ 1216/);
   assert.match(css, /\.hero-scene img \{[^}]*left: -12\.5%/);
-  // A 2240px viewport displays x=280..2520 and y=0..1216 of the 2800x1260 image.
   assert.equal(2240 * 1.25, copy.home.主视觉宽度);
-  assert.equal(2240 * 0.125, 280);
-  assert.ok(1178 < 1216 && 1216 < 1236); // signature stays; phone bar is below the crop
 });
 
 test('unpublished hero candidates are absent from the homepage', () => {
@@ -245,15 +241,17 @@ test('historical team stories are separate from association project records', ()
   assert.ok(!site.renderProjectRecords([]).includes('项目资料正在整理'));
 });
 
-test('recruitment is native text and a working group code, not an embedded poster', () => {
-  const html = site.renderHome();
+test('recruitment is concentrated in the newcomer guide with the daily QQ group kept distinct', () => {
+  const html = site.renderGuide({ body: articleBody('01_新人指南/新人指南.md'), summary: '' });
   assert.ok(!html.includes('/assets/recruitment-2026.jpg'));
   assert.ok(!html.includes('join-poster'));
   assert.match(html, /<a href="https:\/\/qm.qq.com\/q\/71RzbkmIZG" target="_blank" rel="noopener noreferrer"><img src="\/assets\/recruitment-qq-qr.svg"/);
-  assert.ok(html.includes('用 QQ 扫码加入招新群'));
-  assert.ok(html.includes('class="join-facts"'));
+  assert.ok(html.includes('用 QQ 扫码加入 QQ 交流群'));
+  assert.equal((html.match(/协会每年学期初开始招新/g) || []).length, 1);
+  assert.equal((html.match(/class="join-panel"/g) || []).length, 1);
   assert.ok(html.includes('451851387'));
-  assert.ok(html.includes('电子科技大学研究院大楼 324'));
+  assert.ok(html.includes('航空航天学院（研究院大楼）324'));
+  assert.ok(html.includes('协会每年学期初开始招新'));
 });
 
 test('CUADC employment evidence is subordinate to the competition, not a standalone poster section', () => {
@@ -262,6 +260,12 @@ test('CUADC employment evidence is subordinate to the competition, not a standal
   assert.ok(!headings.some(item => item.text.includes('大疆')));
   const cuadc = body.split('## CUADC')[1].split('## 相关学科竞赛')[0];
   assert.ok(cuadc.includes('### 参赛经历与求职'));
+  assert.ok(cuadc.includes('/assets/cuadc-west-team.jpg'));
+  assert.ok(body.includes('/assets/drone-soccer-final-team.jpg'));
+  assert.ok(!body.includes('/assets/cuadc-field.jpg'));
+  for (const filename of ['cuadc-west-team.jpg', 'drone-soccer-final-team.jpg']) {
+    assert.ok(fs.existsSync(path.join(__dirname, '../发布资源/官网配图', filename)));
+  }
   assert.ok(cuadc.includes('/assets/dji-cuadc-recruitment-2027.jpg'));
   assert.ok(cuadc.includes('不代表录用承诺'));
   assert.ok(!body.includes('通道已'));
@@ -271,7 +275,7 @@ test('CUADC employment evidence is subordinate to the competition, not a standal
   assert.match(html, /href="\/assets\/dji-cuadc-recruitment-2027.jpg"/);
 });
 
-test('directory links use their text without repeated decorative arrows', () => {
+test('resource directory separates learning routes from reference entries', () => {
   const vm = require('node:vm');
   const sandbox = { module: { exports: {} }, URL, URLSearchParams };
   vm.createContext(sandbox);
@@ -279,8 +283,11 @@ test('directory links use their text without repeated decorative arrows', () => 
   sandbox.module.exports.setSiteCopy(copy);
   vm.runInContext('allArticles = [{ id: "moyi90", title: "魔翼 90 制作与协会取材" }, { id: "fpv-path", title: "穿越机入门" }]', sandbox);
   const html = sandbox.module.exports.renderResources({ body: '' });
-  assert.match(html, /href="[^\"]*article=moyi90[^\"]*">魔翼 90 制作与协会取材<\/a>/);
-  assert.ok(!/[→↗]/.test(html));
+  assert.ok(html.includes('id="learning-title"'));
+  assert.ok(html.includes('id="reference-title"'));
+  assert.equal((html.match(/class="resource-route-link"/g) || []).length, 3);
+  assert.ok(html.includes('article=fixed-wing-simulator&amp;route=fixed-wing'));
+  assert.ok(!html.includes('article=moyi90'));
   assert.ok(!/[→↗]/.test(site.renderHome()));
 });
 
@@ -292,38 +299,37 @@ test('record dates and source attribution do not invent event dates or links', (
   assert.ok(html.includes('datetime="2025-12-12"'));
   assert.ok(html.includes('class="record-source"'));
   assert.match(html, /href="https:\/\/news.uestc.edu.cn\/info\/1131\/36224.htm"/);
-  assert.ok(html.includes('返回新闻与通知'));
+  assert.ok(html.includes('返回活动与实践'));
   const withoutLink = site.renderContent({ ...item, source_url: 'javascript:alert(1)' });
   assert.ok(!withoutLink.includes('javascript:'));
   assert.ok(!withoutLink.includes('原链接待补'));
   assert.ok(withoutLink.includes('学校报道'));
 });
 
-test('outreach has activity records while unrelated portal pages do not', () => {
-  const article = { id: 'outreach-service', title: '科普活动', body: '# 科普活动\n\n## 参加\n说明', media: [] };
-  const content = { news: [{ id: 'school-camp', title: '科学营', date: '2019-07-15' }], projects: [] };
-  const html = site.renderPortal(article, 'outreach', content);
-  assert.ok(html.includes('活动记录'));
-  assert.ok(html.includes('id=school-camp'));
-  const guide = site.renderPortal({ ...article, id: 'activity-guide' }, 'outreach', content);
-  assert.ok(!guide.includes('id=school-camp'));
+test('old activity URLs resolve to the single merged activity page', () => {
+  for (const url of ['/?page=outreach', '/?page=updates']) assert.equal(site.readLocation(url).page, 'activities');
+  for (const id of ['outreach-service', 'activity-guide', 'activity-records']) assert.equal(site.PORTAL_ARTICLES[id], 'activities');
 });
 
-test('news and notices remain distinct on the updated listing', () => {
-  const html = site.renderUpdates({ news: [{ id: 'past-event', title: '活动记录', date: '2025-12-16' }], notices: [] });
-  assert.ok(html.includes('class="updates-layout"'));
-  assert.ok(html.includes('id="news"'));
-  assert.ok(html.includes('id="notices"'));
+test('merged activity page shows editable participation guide before records', () => {
+  const html = site.renderActivities({ news: [{ id: 'past-event', title: '活动记录', date: '2025-12-16' }], notices: [] }, { title: '参与指南', body: articleBody('04_科普活动/活动参与说明.md') });
+  assert.ok(html.includes('id="activity-records"'));
+  assert.ok(html.includes('id="participation-guide"'));
   assert.ok(html.includes('kind=news&amp;id=past-event'));
-  assert.ok(html.includes('近期活动安排请查看群内通知'));
-  assert.ok(!html.includes('kind=notices&amp;id=past-event'));
+  assert.ok(html.includes('认识动捕实验室'));
+  assert.ok(html.indexOf('id="participation-guide"') < html.indexOf('id="activity-records"'));
+  assert.ok(html.includes('综合课件（待完善）'));
+  assert.ok(!decodeURIComponent(html).includes('航模科普与实践.pptx'));
+  assert.ok(!html.includes('活动通知'));
 });
 
 test('homepage introduces activities without a second set of tutorial entrances', () => {
   const html = site.renderHome();
-  for (const page of ['guide', 'projects', 'outreach', 'updates']) {
+  for (const page of ['guide', 'projects', 'activities']) {
     assert.equal((html.match(new RegExp(`href="/\\?page=${page}"`, 'g')) || []).length, 1);
   }
+  assert.ok(!html.includes('page=outreach'));
+  assert.ok(!html.includes('page=updates'));
   assert.deepEqual([...html.matchAll(/href="([^"\s]*\?article=[^"]+)"/g)].map(match => match[1]), ['/?article=safety-rules']);
   assert.ok(!html.includes('#activity-records'));
   assert.ok(!html.includes('学飞快捷入口'));
@@ -449,16 +455,18 @@ test('the safety prerequisite does not send newcomers into a second course', () 
   assert.ok(lastChapter.includes('不是完成入门路线的必读内容'));
 });
 
-test('association introduction and recruitment live on home; old about URLs stay usable', () => {
+test('association introduction stays on home and recruitment lives in the newcomer guide', () => {
   const body = articleBody('00_首页/协会简介.md');
-  const html = site.renderHome(undefined, body);
-  for (const term of ['电子科技大学航空航天科技协会', '依托航空航天学院', '焊接工具', '451851387', '/assets/recruitment-qq-qr.svg']) assert.ok(html.includes(term), term);
-  assert.ok(html.includes('id="join"'));
-  assert.ok(!html.includes('page=about'));
+  const home = site.renderHome(undefined, body);
+  for (const term of ['电子科技大学航空航天科技协会', '依托航空航天学院']) assert.ok(home.includes(term), term);
+  for (const term of ['451851387', '/assets/recruitment-qq-qr.svg', 'id="join"']) assert.ok(!home.includes(term), term);
+  const guide = site.renderGuide({ body: articleBody('01_新人指南/新人指南.md'), summary: '' });
+  for (const term of ['焊接工具', '451851387', '/assets/recruitment-qq-qr.svg', 'id="join"']) assert.ok(guide.includes(term), term);
+  assert.ok(!home.includes('page=about'));
   assert.ok(!('about' in site.PAGES));
   assert.equal(site.readLocation('/?page=about#join').page, 'home');
   assert.equal(site.PORTAL_ARTICLES['association-intro'], 'home');
-  assert.equal(site.PORTAL_ARTICLES['activity-records'], 'updates');
+  assert.equal(site.PORTAL_ARTICLES['activity-records'], 'activities');
 });
 
 test('single-page guides have no artificial chapter navigation', () => {
@@ -477,20 +485,20 @@ test('single-page guides have no artificial chapter navigation', () => {
 
 test('activity detail ends with its source and parent, not unrelated recommendations', () => {
   const html = site.renderContent({ id: 'record', kind: 'news', title: '活动', body: '正文' });
-  assert.ok(html.includes('返回新闻与通知'));
+  assert.ok(html.includes('返回活动与实践'));
   assert.ok(!html.includes('page=outreach'));
   assert.ok(!html.includes('design-making'));
 });
 
 test('news lists pair a thumbnail with its summary and keep one detail link per story', () => {
   const news = [{ id: 'camp', title: '少年营', summary: '无人机足球课堂', cover: '/assets/camp.jpg' }];
-  const html = site.renderUpdates({ news, notices: [] });
+  const html = site.renderActivities({ news, notices: [] });
   assert.match(html, /class="stream-item has-image"><img class="stream-thumb" src="\/assets\/camp.jpg" alt=""/);
   assert.ok(html.includes('<p>无人机足球课堂</p>'));
   assert.equal((html.match(/href="\/\?kind=news&amp;id=camp"/g) || []).length, 1);
   const home = site.renderHome({ news, notices: [] });
   assert.ok(home.includes('class="stream-thumb"'));
-  const withoutImage = site.renderUpdates({ news: [{ ...news[0], cover: '' }], notices: [] });
+  const withoutImage = site.renderActivities({ news: [{ ...news[0], cover: '' }], notices: [] });
   assert.ok(!withoutImage.includes('stream-thumb'));
 });
 
@@ -520,9 +528,9 @@ test('original reporting has one explicit link and unavailable sources have no p
   }
 });
 
-test('news image metadata is escaped and notices do not acquire news thumbnails', () => {
+test('activity image metadata is escaped and the participation guide has no thumbnail list', () => {
   const item = { id: 'unsafe', title: '<script>bad</script>', summary: '<img onerror=bad>', cover: 'javascript:bad()' };
-  const html = site.renderUpdates({ news: [item], notices: [{ ...item, cover: '/assets/camp.jpg' }] });
+  const html = site.renderActivities({ news: [item], notices: [{ ...item, cover: '/assets/camp.jpg' }] });
   assert.ok(!html.includes('stream-thumb'));
   assert.ok(!html.includes('<script>'));
   assert.ok(!html.includes('javascript:'));
@@ -533,29 +541,25 @@ test('newcomers see three complete aircraft routes, with shared skills afterward
   const body = articleBody('01_新人指南/新人指南.md');
   const html = site.renderGuide({ body, summary: '' });
   assert.equal((html.match(/class="guide-option"/g) || []).length, 3);
-  for (const title of ['固定翼入门', '穿越机入门', '直升机入门']) assert.ok(html.includes(`<h3>${title}</h3>`));
-  assert.ok(html.indexOf('固定翼入门') < html.indexOf('<h2>设计与制作</h2>'));
-  assert.ok(html.includes('魔翼 90 制作'));
-  assert.ok(html.includes('装机'));
+  for (const title of ['固定翼入门', '穿越机入门', '直升机入门']) assert.ok(html.includes(`>${title}</a></h3>`));
+  assert.ok(html.indexOf('固定翼入门') < html.indexOf('>设计与制作</a></h2>'));
+  assert.ok(html.includes('焊台与热风枪'));
+  assert.equal((html.match(/src="\/assets\/guide-/g) || []).length, 3);
   assert.ok(html.includes('难度较高'));
   assert.ok(html.includes('可以同时参与'));
   assert.ok(!html.includes('route=design'));
 });
 
-test('safety reading is prominent before participation steps and aircraft routes', () => {
+test('homepage keeps its safety reading link', () => {
   const home = site.renderHome();
   assert.match(home, /class="safety-note"[\s\S]*?<a href="\/\?article=safety-rules">安全须知<\/a>/);
-  const html = site.renderGuide({ body: articleBody('01_新人指南/新人指南.md'), summary: '' });
-  const start = html.split('class="guide-start markdown-body"')[1].split('class="guide-routes"')[0];
-  assert.match(start, /<blockquote><strong>第一次参加前，请先读<\/strong><a href="\?article=safety-rules">安全须知<\/a>/);
-  assert.ok(start.indexOf('article=safety-rules') < start.indexOf('<ol>'));
 });
 
-test('equipment instructions link safety before showing equipment and procedures', () => {
+test('equipment instructions preserve the current registration and return process', () => {
   const body = articleBody('02_技术资料/设备与制作/设备取用.md');
-  assert.ok(body.indexOf('?article=safety-rules') >= 0);
-  assert.ok(body.indexOf('?article=safety-rules') < body.indexOf('## 新人常用设备'));
-  assert.match(site.renderMarkdown(body), /<blockquote><strong>操作前，请先读<\/strong><a href="\?article=safety-rules">安全须知<\/a>/);
+  const html = site.renderMarkdown(body);
+  for (const text of ['部分设备统计', '借用怎么登记', '群公告', '请勿改动他人的记录', '取用前检查', '更新归还日期或归还状态']) assert.ok(html.includes(text));
+  assert.ok(body.indexOf('## 借用怎么登记') < body.indexOf('## 取用前检查'));
 });
 
 test('charging defaults to 2C only within the battery manufacturer limits', () => {
@@ -568,29 +572,37 @@ test('charging defaults to 2C only within the battery manufacturer limits', () =
 
 test('design reference belongs to resources and is not a fourth learning route', () => {
   const html = site.renderResources({ body: '', summary: '' });
-  assert.equal((html.match(/<h2>设计与制作<\/h2>/g) || []).length, 1);
+  assert.equal((html.match(/<h3>设计与制作<\/h3>/g) || []).length, 1);
   const handbook = site.HANDBOOKS.find(item => item.title === '设计与制作');
   assert.ok(handbook?.articles.includes('design-making'));
-  assert.ok(handbook.articles.includes('3d-printing'));
+  assert.deepEqual(handbook.articles, ['design-making']);
+  const equipment = site.HANDBOOKS.find(item => item.title === '设备与加工');
+  assert.deepEqual(equipment.articles, ['equipment-flow', '3d-printing']);
   const reader = site.renderReader({ id: 'design-making', title: '设计与制作', body: '' }, site.getArticleContext('design-making'), {});
   assert.ok(reader.includes('href="/?page=resources"'));
   assert.ok(!reader.includes('href="/?page=guide"'));
 });
 
-test('homepage treats participation as compatible and school visits as regular outreach', () => {
+test('homepage treats participation as compatible and links one activity overview', () => {
   const html = site.renderHome();
-  assert.ok(html.includes('/assets/beijing-highschool-visit-toned-v2.jpg'));
   assert.ok(html.includes('可以同时参与'));
   assert.ok(html.includes('有制作、编程、建模或飞行经验'));
-  assert.ok(!html.includes('北京高中'));
-  assert.ok(html.includes('中小学研学'));
+  assert.ok(html.includes('活动与实践'));
+  assert.ok(html.includes('科学营、少年营、研学和校园展示'));
+  assert.equal((html.match(/page=activities/g) || []).length, 1);
   assert.ok(!html.includes('20 场'));
 });
 
-test('design materials focus on shared tools and outreach pairs 2026 images with 2026 text', () => {
+test('design materials are marked pending and outreach pairs 2026 images with 2026 text', () => {
   const design = articleBody('02_技术资料/设备与制作/设计与制作.md');
-  for (const term of ['焊台', '3D 打印', '切割机', '飞机设计']) assert.ok(design.includes(term));
-  assert.ok(!design.includes('?article=moyi90&route=design'));
+  assert.ok(design.includes('## 待完善'));
+  assert.ok(design.indexOf('?article=3d-printing') < design.indexOf('## 待完善'));
+  assert.ok(design.includes('飞机设计'));
+  assert.ok(design.includes('?article=3d-printing'));
+  assert.ok(design.includes('?article=equipment-flow'));
+  assert.ok(!design.includes('?article=moyi90'));
+  assert.ok(design.includes('/assets/workshop-soldering-station.png'));
+  assert.ok(design.includes('/assets/workshop-hot-air-station.png'));
   const outreach = articleBody('04_科普活动/科普活动.md');
   assert.ok(!outreach.includes('北京高中'));
   assert.ok(!outreach.includes('2019 年'));
@@ -609,11 +621,11 @@ test('school outreach photos are not presented as the Shiwai Bairen visit', () =
   assert.ok(!camp.includes('20 多架'));
 });
 test('editing guide headings preserves its three aircraft cards and their order', () => {
-  const body = articleBody('01_新人指南/新人指南.md').replace('固定翼入门 {#fixed-wing}', '从固定翼开始 {#fixed-wing}').replace('第一次参加 {#start}', '来之前看看 {#start}');
+  const body = articleBody('01_新人指南/新人指南.md').replace('[固定翼入门]', '[从固定翼开始]').replace('加入空天科协 {#start}', '来之前看看 {#start}');
   const html = site.renderGuide({ body, title: '来协会玩', summary: '' });
   assert.equal((html.match(/class="guide-option"/g) || []).length, 3);
   assert.ok(html.includes('<h1>来协会玩</h1>'));
-  assert.ok(html.includes('<h3>从固定翼开始</h3>'));
+  assert.ok(html.includes('>从固定翼开始</a></h3>'));
   assert.ok(html.includes('<h2>来之前看看</h2>'));
   assert.ok(!html.includes('{#'));
   assert.ok(html.indexOf('来之前看看') < html.indexOf('从固定翼开始'));
@@ -629,14 +641,18 @@ test('homepage and shared copy edits render as text, not executable markup', () 
   revised.common.站点.QQ群 = '123456789';
   try {
     site.setSiteCopy(revised);
-    const html = site.renderHome();
-    assert.ok(html.includes('改好的竞赛介绍 &lt;script&gt;'));
-    assert.ok(html.includes('照片 &lt;script&gt;'));
-    assert.ok(html.includes('lang="en">&lt;script&gt;'));
-    assert.ok(!html.includes('<script>'));
-    assert.ok(!html.includes('javascript:'));
-    assert.ok(html.includes('竞赛与项目'));
-    assert.ok(html.includes('123456789'));
-    assert.ok(!html.includes('451851387'));
+    const home = site.renderHome();
+    const guide = site.renderGuide({ body: articleBody('01_新人指南/新人指南.md'), summary: '' });
+    assert.ok(home.includes('改好的竞赛介绍 &lt;script&gt;'));
+    assert.ok(home.includes('照片 &lt;script&gt;'));
+    assert.ok(home.includes('lang="en">&lt;script&gt;'));
+    assert.ok(!home.includes('<script>'));
+    assert.ok(!home.includes('javascript:'));
+    assert.equal(site.PAGES.projects.title, '竞赛与项目');
+    assert.ok(guide.includes('451851387'));
+    assert.ok(!guide.includes('123456789'));
+    const edited = site.renderGuide({ body: articleBody('01_新人指南/新人指南.md').replace('451851387', '987654321'), summary: '' });
+    assert.ok(edited.includes('987654321'));
+    assert.ok(!edited.includes('451851387'));
   } finally { site.setSiteCopy(copy); }
 });
