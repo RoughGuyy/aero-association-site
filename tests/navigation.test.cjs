@@ -52,7 +52,7 @@ function articleBody(relativePath) {
 
 test('homepage overlays live text on one twilight image without extra hero copy', () => {
   const html = site.renderHome();
-  const hero = html.split('<section class="section">')[0];
+  const hero = html.split('</section>')[0];
   assert.ok(hero.includes('/assets/hero-twilight-plume.jpg'));
   assert.ok(hero.includes('width="2800" height="1260"'));
   assert.ok(!hero.includes('/assets/cuadc-field.jpg'));
@@ -86,7 +86,7 @@ test('homepage overlays live text on one twilight image without extra hero copy'
 test('hero shows school, association names and an artistic guide link; introduction stays below', () => {
   const body = '# 空天科协\n\n依托航空航天学院开展学生实践。';
   const html = site.renderHome(undefined, body);
-  const hero = html.split('<section class="section">')[0];
+  const hero = html.split('</section>')[0];
   assert.ok(hero.includes('<p class="institution">电子科技大学</p>'));
   assert.ok(hero.includes('<h1>空天科协</h1>'));
   assert.ok(hero.includes('<p class="hero-fullname">电子科技大学航空航天科技协会</p>'));

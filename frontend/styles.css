@@ -30,12 +30,13 @@
   --line: #d8e0eb;
   --pale: #eff3f8;
   --white: #fff;
-  font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+  font-family: "Caveat", "Ma Shan Zheng", "KaiTi", "STKaiti", serif;
+  font-synthesis: none;
   font-size: 16px;
 }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 108px; }
-body { margin: 0; background: var(--white); color: var(--text); line-height: 1.75; }
+body { margin: 0; background: var(--white); color: var(--text); font-size: 19px; line-height: 1.85; }
 button, input, textarea { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
 button { cursor: pointer; }
@@ -45,7 +46,8 @@ button:focus-visible, a:focus-visible, summary:focus-visible, textarea:focus-vis
 img { display: block; max-width: 100%; height: auto; }
 button { border: 0; }
 [hidden] { display: none !important; }
-h1, h2, h3, h4 { color: var(--ink); line-height: 1.4; }
+h1, h2, h3, h4 { color: var(--ink); line-height: 1.4; font-weight: 400; }
+strong, b, dt { font-weight: 400; }
 p { margin: 0 0 1em; }
 .container { width: min(1160px, calc(100% - 64px)); margin-inline: auto; }
 .skip-link { position: fixed; top: -100px; left: 16px; padding: 10px 20px; background: white; z-index: 100; }
@@ -474,4 +476,66 @@ figure { margin: 0; }
   .site-guide-body { padding: 52px 24px 24px; }
   .site-guide h2 { font-size: 36px; }
   .site-guide-input input { padding: 12px 0; }
+}
+
+
+/* Handwritten typography and open, paper-like editorial spacing. */
+.section-title h2, .split h2 { font-size: clamp(34px, 3.4vw, 46px); }
+.page-head h1 { font-size: clamp(36px, 4vw, 52px); }
+.reading-main .page-head h1 { font-size: clamp(32px, 3.6vw, 46px); }
+.markdown-body { font-size: 20px; line-height: 1.95; }
+.markdown-body h2 { font-size: 32px; margin-top: 1.5em; }
+.markdown-body h3 { font-size: 26px; }
+.page-head p, .section-intro { font-size: 20px; }
+.entry dt, .project-facts dt, .record-category,
+.route-sidebar .chapter[aria-current="page"], .stream-item h3 a,
+.stream-item h4 a { font-weight: 400; }
+.stream-item h3, .stream-item h4 { font-size: 25px; line-height: 1.5; }
+.stream-item p { font-size: 19px; line-height: 1.8; }
+.record-meta, .stream-item .record-meta, .photo-caption,
+.site-footer, .record-source { font-size: 17px; }
+.route-sidebar .chapter, .toc, .article-toc summary { font-size: 18px; }
+.route-sidebar h3 { font-size: 19px; }
+.related-records > h2, .participation-guide h2 { font-size: 34px; }
+.resource-route-link h3, .resource-group h3 { font-size: 27px; }
+.resource-route-link p, .resource-entry-summary, .resource-section-head p,
+.flight-training-group li p, .printing-help p { font-size: 18px; }
+.resource-entry-title { font-size: 22px; }
+.resource-route-action, .breadcrumbs, .article-toc nav, .return-route,
+.join-code figcaption, .media figcaption { font-size: 17px; }
+.record-grid { gap: 24px 44px; }
+.record-grid .stream-item { padding-block: 24px; }
+.home-welcome { padding-block: 60px 68px; }
+.hero + .home-welcome { padding-top: 60px; }
+.home-welcome .section-title { margin-bottom: 20px; }
+.home-welcome .newcomer-layout { display: block; }
+.home-welcome .newcomer-note { max-width: 760px; }
+.home-welcome .newcomer-note p { margin-bottom: 0; font-size: 22px; line-height: 1.85; }
+.home-welcome .entry-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px; margin-top: 36px; border-top: 0; }
+.home-welcome .entry { display: block; border-top: 1px solid var(--line); border-bottom: 0; padding-top: 22px; padding-bottom: 0; }
+.home-welcome .entry dt { font-size: 30px; margin-bottom: 10px; }
+.home-welcome .entry dd { font-size: 20px; line-height: 1.75; }
+.section.soft.home-projects { background: #f6f7f7; }
+.home-projects .split { gap: 64px; }
+.home-projects .split-photo { border-radius: 2px; }
+.home-projects .split > div > p { font-size: 22px; }
+.home-projects .project-facts div { grid-template-columns: 100px minmax(0, 1fr); gap: 20px; }
+.home-projects .project-facts dt { font-size: 22px; }
+.home-projects .project-facts dd { font-size: 20px; }
+.home-activities .stream { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 36px; }
+.home-activities .stream-item.has-image { display: flex; flex-direction: column; gap: 20px; padding: 0; border-top: 0; }
+.home-activities .stream-thumb { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+.home-activities .stream-item h3 { margin-block: 6px 12px; }
+.home-activities .text-link { font-size: 21px; }
+@media (max-width: 760px) {
+  .home-welcome .entry-list, .home-activities .stream { grid-template-columns: 1fr; gap: 26px; }
+  .home-welcome, .hero + .home-welcome { padding-block: 40px; }
+  .home-welcome .entry-list { margin-top: 28px; }
+  .home-welcome .entry dt { font-size: 28px; margin-bottom: 6px; }
+  .home-projects .split { gap: 28px; }
+  .home-activities .stream-item.has-image { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 18px; padding-top: 22px; border-top: 1px solid var(--line); }
+  .home-activities .stream-item h3 { font-size: 23px; }
+  .markdown-body { font-size: 19px; }
+  .markdown-body h2 { font-size: 29px; }
+  .markdown-body h3 { font-size: 24px; }
 }
