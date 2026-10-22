@@ -23,17 +23,16 @@
         <a href="/?page=resources" data-page="resources">{{栏目.resources}}</a>
         <a href="/?page=aircraft" data-page="aircraft">{{栏目.aircraft}}</a>
         <a href="/?page=projects" data-page="projects">{{栏目.projects}}</a>
-        <a href="/?page=outreach" data-page="outreach">{{栏目.outreach}}</a>
-        <a href="/?page=updates" data-page="updates">{{栏目.updates}}</a>
+        <a href="/?page=activities" data-page="activities">{{栏目.activities}}</a>
       </nav>
     </div>
   </header>
   <main id="main" tabindex="-1">
     <div class="container page"><h1>{{站点.名称}}</h1><p>正在加载内容…</p></div>
-    <noscript><p>请启用 JavaScript 查看{{栏目.guide}}和活动内容。招新 QQ 群：{{站点.QQ群}}；活动地点：{{站点.地点}}。</p></noscript>
+    <noscript><p>请启用 JavaScript 查看{{栏目.guide}}和活动内容。QQ 交流群：{{站点.QQ群}}；活动地点：{{站点.地点}}。</p></noscript>
   </main>
   <footer class="site-footer">
-    <div class="container footer-inner"><span>{{站点.全称}}</span><a href="/#join">{{站点.地点简称}} · QQ {{站点.QQ群}}</a></div>
+    <div class="container footer-inner"><span class="footer-name">{{站点.全称}}</span><div class="footer-contact"><div class="footer-location"><span class="footer-label">协会地点</span><span>{{站点.地点}}</span></div><div class="footer-community"><span class="footer-label">日常交流</span><span>QQ 交流群 · {{站点.QQ群}}</span><a href="https://qm.qq.com/q/71RzbkmIZG" target="_blank" rel="noopener noreferrer">加入交流群</a></div></div></div>
   </footer>
 </body>
 </html>
