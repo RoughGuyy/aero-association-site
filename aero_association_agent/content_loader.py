@@ -10,10 +10,10 @@ from .settings import CONTENT_DIR
 
 CONTENT_KINDS = {"news", "notices", "projects", "aircraft"}
 CONTENT_FOLDERS = {
-    "aircraft": "06_机型目录/航模档案",
-    "news": "05_新闻与通知/活动新闻",
-    "notices": "05_新闻与通知/活动通知",
-    "projects": "03_项目与竞赛/项目记录",
+    "aircraft": "03_机型目录/航模档案",
+    "news": "05_活动与实践/活动记录",
+    "notices": "05_活动与实践/活动通知",
+    "projects": "04_项目与竞赛/项目记录",
 }
 
 

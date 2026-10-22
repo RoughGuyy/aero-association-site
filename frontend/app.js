@@ -1,47 +1,20 @@
 'use strict';
 
-const PAGES = {
-  home: { title: '首页' },
-  guide: { title: '新人指南', article: 'newcomer-path' },
-  resources: { title: '技术资料', article: 'resource-center' },
-  aircraft: { title: '机型目录' },
-  projects: { title: '项目与竞赛', article: 'competitions-and-growth' },
-  activities: { title: '活动与实践' }
-};
+const SITE_STRUCTURE = typeof require === 'function'
+  ? require('../网站内容/站点结构.json') : globalThis.AERO_SITE_STRUCTURE;
+const PAGES = Object.fromEntries(SITE_STRUCTURE.pages.map(node => [node.page, { title: node.title, ...(node.article ? {article: node.article} : {}) }]));
 const PAGE_ALIASES = { outreach: 'activities', updates: 'activities' };
-const ROUTES = {
-  // 保留旧 design 参数和参考资料返回地址；不作为第四种机型入口展示。
-  design: {
-    title: '设计与制作',
-    articles: ['design-making'],
-    references: ['moyi90', '3d-printing', 'equipment-flow', 'opentx-logic', 'tx12-quickstart', 'radio-curves', 'safety-rules']
-  },
-  'fixed-wing': {
-    title: '固定翼入门',
-    articles: ['fixed-wing-simulator', 'moyi90', 'first-flight-check', 'after-moyi90-airframes'],
-    references: ['tx12-quickstart', 'setup-radio', 'opentx-logic', 'radio-curves', 'equipment-flow', 'safety-rules', 'simulator-goals', 'aerobatics-training']
-  },
-  fpv: {
-    title: '穿越机入门', articles: ['fpv-path'],
-    references: ['tx12-quickstart', 'setup-radio', 'opentx-logic', 'safety-rules', 'simulator-goals']
-  },
-  helicopter: {
-    title: '直升机入门', articles: ['helicopter-path'],
-    references: ['safety-rules', 'simulator-goals']
-  }
-};
-const HANDBOOKS = [
-  { title: '设计与制作', articles: ['design-making'] },
-  { title: '设备与加工', articles: ['equipment-flow', '3d-printing'] },
-  { title: '遥控器与航电', articles: ['tx12-quickstart', 'opentx-logic', 'setup-radio', 'radio-curves'] },
-  { title: '安全与训练参考', articles: ['safety-rules', 'simulator-goals'] },
-  { title: '飞行技巧训练', articles: ['flight-training', 'aerobatics-training'] },
-  { title: '航模运动知识', articles: ['fai-model-classification'] }
-];
-const FLIGHT_COURSES = [
-  { title: '初级飞行教程', isCourse: true, articles: ['flight-training', 'flight-training-plan', 'flight-controls-turns', 'flight-track-wind', 'flight-takeoff-trim', 'flight-landing-goaround'] },
-  { title: '特技飞行教程', isCourse: true, articles: ['aerobatics-training', 'flight-aerobatic-aircraft', 'flight-aerobatic-foundations', 'flight-loop-roll', 'flight-aileron-roll', 'flight-immelmann', 'flight-cuban-eight', 'flight-reverse-cuban-eight', 'flight-point-rolls', 'flight-aerobatic-combinations', 'flight-aerobatic-variations'] }
-];
+const ROUTES = { ...SITE_STRUCTURE.legacyRoutes };
+const HANDBOOKS = [];
+const FLIGHT_COURSES = [];
+function collectNavigation(node) {
+  const articles = [node.article, ...(node.children || []).map(child => child.article)].filter(Boolean);
+  if (node.route) ROUTES[node.route] = {title: node.title, articles, references: node.references || []};
+  if (node.group) HANDBOOKS.push({title: node.title, anchor: node.anchor, pending: node.pending, articles: (node.children || []).map(child => child.article)});
+  if (node.course) FLIGHT_COURSES.push({title: node.title, isCourse: true, articles});
+  (node.children || []).forEach(collectNavigation);
+}
+SITE_STRUCTURE.pages.forEach(collectNavigation);
 const PORTAL_ARTICLES = {
   'association-intro': 'home', 'newcomer-path': 'guide', 'resource-center': 'resources',
   'competitions-and-growth': 'projects', 'outreach-service': 'activities',
@@ -54,9 +27,6 @@ const SITE_ROOT = typeof document === 'undefined'
 let siteCopy;
 function setSiteCopy(value) {
   siteCopy = value;
-  for (const [key, title] of Object.entries(value.common.栏目)) PAGES[key].title = title;
-  for (const [key, title] of Object.entries(value.common.路线)) ROUTES[key].title = title;
-  HANDBOOKS.forEach((group, index) => { group.title = value.common.资料分组[index]; });
   Object.assign(SHORT_TITLES, value.common.文章简称);
 }
 function wording(group, key) { return siteCopy.common[group][key]; }
@@ -164,8 +134,8 @@ function renderHome(content = { news: [], notices: [] }, introduction = '') {
   const h = siteCopy.home;
   const facts = items => items.map(item => `<div><dt>${escapeHtml(item.标题)}</dt><dd>${escapeHtml(item.说明)}</dd></div>`).join('');
   return `${renderHero()}
-  <section class="section"><div class="container"><div class="section-title"><h2>${escapeHtml(h.首次参加标题)}</h2></div>${introduction ? `<p class="section-intro">${renderInline(stripTitle(introduction).trim())}</p>` : ''}<div class="newcomer-layout"><div class="newcomer-note"><aside class="safety-note"><strong>${renderInline(h.安全提示)}</strong><p>${escapeHtml(h.安全说明)}</p></aside><p>${escapeHtml(h.参加说明)}</p><p>${escapeHtml(h.基础说明)}</p></div><dl class="entry-list">${h.参与内容.map(item => `<div class="entry"><dt>${escapeHtml(item.标题)}</dt><dd>${escapeHtml(item.说明)}</dd></div>`).join('')}</dl></div></div></section>
-  <section class="section soft"><div class="container split"><figure><img class="split-photo" src="${escapeAttr(safeUrl(h.竞赛图片, true))}" alt="${escapeAttr(h.竞赛图注)}" loading="lazy"><figcaption class="photo-caption">${escapeHtml(h.竞赛图注)}</figcaption></figure><div><h2>${escapeHtml(PAGES.projects.title)}</h2><p>${escapeHtml(h.竞赛介绍)}</p><dl class="project-facts">${facts(h.竞赛补充)}</dl><div class="actions"><a class="text-link" href="${escapeAttr(pageHref('projects'))}">${escapeHtml(h.竞赛入口)}</a></div></div></div></section>
+  <section class="section"><div class="container"><div class="section-title"><h2>${escapeHtml(h.首次参加标题)}</h2></div>${introduction ? `<p class="section-intro">${renderInline(stripTitle(introduction).trim())}</p>` : ''}<div class="newcomer-layout"><div class="newcomer-note">${h.安全提示 || h.安全说明 ? `<aside class="safety-note"><strong>${renderInline(h.安全提示 || '')}</strong><p>${escapeHtml(h.安全说明)}</p></aside>` : ''}${h.参加说明 ? `<p>${escapeHtml(h.参加说明)}</p>` : ''}<p>${escapeHtml(h.基础说明)}</p></div><dl class="entry-list">${h.参与内容.map(item => `<div class="entry"><dt>${escapeHtml(item.标题)}</dt><dd>${escapeHtml(item.说明)}</dd></div>`).join('')}</dl></div></div></section>
+  <section class="section soft"><div class="container split"><figure><img class="split-photo" src="${escapeAttr(safeUrl(h.竞赛图片, true))}" alt="${escapeAttr(h.竞赛图注)}" loading="lazy"><figcaption class="photo-caption">${escapeHtml(h.竞赛图注)}</figcaption></figure><div><h2><a class="section-heading-link" href="${escapeAttr(pageHref('projects'))}">${escapeHtml(PAGES.projects.title)}</a></h2><p>${escapeHtml(h.竞赛介绍)}</p><dl class="project-facts">${facts(h.竞赛补充)}</dl></div></div></section>
   <section class="section"><div class="container"><div class="section-title"><h2>${escapeHtml(PAGES.activities.title)}</h2><a class="text-link" href="${escapeAttr(pageHref('activities'))}">${escapeHtml(wording('列表', '全部入口'))}</a></div><p class="section-intro">${escapeHtml(h.活动介绍)}</p><div class="stream">${renderStream('news', content.news.slice(0, 3))}</div></div></section>`;
 }
 function renderStream(kind, items) {
@@ -188,10 +158,10 @@ function renderSource(item) {
   return `<footer class="record-source"><strong>${escapeHtml(wording('列表', '来源标题'))}</strong><p>${title}</p>${item.source_name || item.source_date ? `<p>${[item.source_name, item.source_date].filter(Boolean).map(escapeHtml).join(' · ')}</p>` : ''}${href ? `<a class="text-link" href="${escapeAttr(href)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.source_link_text || wording('列表', '完整报道'))}</a>` : ''}</footer>`;
 }
 function renderProjectRecords(items) {
-  const projects = items.filter(item => item.record_type !== 'history');
-  const history = items.filter(item => item.record_type === 'history');
-  return `${projects.length ? `<section class="related-records" id="project-records"><h2>${escapeHtml(wording('列表', '项目记录'))}</h2><div class="record-grid">${renderStream('projects', projects)}</div></section>` : ''}${history.length ? `<section class="related-records" id="project-history"><h2>${escapeHtml(wording('列表', '历史标题'))}</h2><p>${escapeHtml(wording('列表', '历史说明'))}</p><div class="history-stories">${renderStream('projects', history)}</div></section>` : ''}`;
+  if (!items.length) return '';
+  return `<section class="related-records" id="project-records"><h2>${escapeHtml(wording('列表', '项目记录'))}</h2><div class="record-grid">${renderStream('projects', items)}</div></section>`;
 }
+
 function renderActivities(content, guide = { title: '参与指南', body: '' }) {
   return `<div class="container page">${breadcrumbs([{ label: PAGES.activities.title }])}${pageHeader(PAGES.activities.title)}<nav class="activity-sections" aria-label="活动与实践页内导航"><a href="#participation-guide">参与指南</a><a href="#activity-records">活动记录</a></nav><section class="participation-guide markdown-body" id="participation-guide"><h2>${escapeHtml(guide.title)}</h2>${renderMarkdown(stripTitle(guide.body))}</section><section class="stream activity-records" id="activity-records"><h2>活动记录</h2>${renderStream('news', content.news)}</section></div>`;
 }
@@ -211,19 +181,14 @@ function renderGuide(article) {
   const start = data.sections.find(item => item.key === 'start');
   const introduction = data.sections.find(item => item.key === 'aircraft');
   const supporting = data.sections.filter(item => ![...directionKeys, 'start', 'aircraft'].includes(item.key));
-  return `<div class="container page">${breadcrumbs([{ label: PAGES.guide.title }])}${pageHeader(article.title || PAGES.guide.title, article.summary)}<div class="guide-intro markdown-body">${renderMarkdown(data.intro)}</div>${joinPanel(start)}<section class="guide-routes" id="flight"><h2>${escapeHtml(introduction?.title || '')}</h2>${introduction ? `<div class="guide-intro markdown-body">${renderMarkdown(introduction.body)}</div>` : ''}<div class="guide-options">${directionKeys.map(key => {
+  return `<div class="container page guide-page">${breadcrumbs([{ label: PAGES.guide.title }])}${pageHeader(article.title || PAGES.guide.title, article.summary)}${data.intro.trim() ? `<div class="guide-intro markdown-body">${renderMarkdown(data.intro)}</div>` : ''}${joinPanel(start)}<section class="guide-routes" id="flight"><h2>${escapeHtml(introduction?.title || '')}</h2>${introduction ? `<div class="guide-intro markdown-body">${renderMarkdown(introduction.body)}</div>` : ''}<div class="guide-options">${directionKeys.map(key => {
     const item = data.sections.find(part => part.key === key);
     return item ? `<section class="guide-option"><h3>${renderInline(item.title)}</h3><div class="markdown-body">${renderMarkdown(item.body)}</div></section>` : '';
   }).join('')}</div></section><div class="guide-supplement">${supporting.map(item => `<section class="guide-intro markdown-body"><h2>${renderInline(item.title)}</h2>${renderMarkdown(item.body)}</section>`).join('')}</div></div>`;
 }
 function renderResources(article) {
-  const descriptions = {
-    'fixed-wing': '从模拟器练习，到魔翼制作、调试与首次飞行。',
-    fpv: '了解遥控器与模拟器，开始穿越机基础练习。',
-    helicopter: '从悬停与方向练习开始，逐步熟悉直升机操控。'
-  };
-  const routes = Object.entries(ROUTES).filter(([key]) => key !== 'design').map(([key, route]) => `<section class="resource-route"><a class="resource-route-link" href="${escapeAttr(articleHref(route.articles[0], key))}"><h3>${escapeHtml(route.title)}</h3><p>${escapeHtml(descriptions[key])}</p><span class="resource-route-action">开始学习</span></a></section>`).join('');
-  const references = HANDBOOKS.map(group => `<section class="resource-group"><h3>${escapeHtml(group.title)}</h3><ul>${group.articles.map(id => allArticles.find(item => item.id === id)).filter(Boolean).map(item => `<li><a class="resource-entry" href="${escapeAttr(articleHref(item.id))}"><span class="resource-entry-title">${escapeHtml(item.title)}</span>${['design-making', '3d-printing', 'flight-training', 'aerobatics-training', 'fai-model-classification'].includes(item.id) && item.summary ? `<span class="resource-entry-summary">${escapeHtml(item.summary)}</span>` : ''}</a></li>`).join('')}</ul></section>`).join('');
+  const routes = Object.entries(ROUTES).filter(([key]) => key !== 'design').map(([key, route]) => `<section class="resource-route"><a class="resource-route-link" href="${escapeAttr(articleHref(route.articles[0], key))}"><h3>${escapeHtml(route.title)}</h3><p>${escapeHtml(allArticles.find(item => item.id === route.articles[0])?.summary || '')}</p><span class="resource-route-action">开始学习</span></a></section>`).join('');
+  const references = HANDBOOKS.map(group => `<section class="resource-group" id="${escapeAttr(group.anchor)}"><h3>${escapeHtml(group.title)}</h3><ul>${group.pending ? `<li class="resource-pending"><span class="resource-entry-title">${escapeHtml(group.pending)}</span></li>` : ''}${group.articles.map(id => allArticles.find(item => item.id === id)).filter(Boolean).map(item => `<li><a class="resource-entry" href="${escapeAttr(articleHref(item.id))}"><span class="resource-entry-title">${escapeHtml(item.title)}</span>${['3d-printing', 'flight-training', 'aerobatics-training', 'fai-model-classification'].includes(item.id) && item.summary ? `<span class="resource-entry-summary">${escapeHtml(item.summary)}</span>` : ''}</a></li>`).join('')}</ul></section>`).join('');
   return `<div class="container page resource-page">${breadcrumbs([{ label: PAGES.resources.title }])}${pageHeader(article.title || PAGES.resources.title, article.summary)}<section class="resource-learning" aria-labelledby="learning-title"><div class="resource-section-head"><h2 id="learning-title">入门学习</h2><p>选择一个方向，按章节循序学习。</p></div><div class="resource-routes">${routes}</div></section><section class="resource-reference" aria-labelledby="reference-title"><div class="resource-section-head"><h2 id="reference-title">按需查阅</h2><p>制作、调试与训练时，找到需要的资料。</p></div><div class="resource-grid">${references}</div></section></div>`;
 }
 function renderToc(body, inline = false) {
@@ -255,10 +220,8 @@ function renderReader(article, context, state) {
   const subject = isReference ? getArticleContext(article.id) : context;
   const isAircraftRoute = subject?.isRoute && subject.key !== 'design';
   const crumbs = [{ label: isAircraftRoute ? PAGES.guide.title : PAGES.resources.title, href: pageHref(isAircraftRoute ? 'guide' : 'resources') }, { label: subject?.title || article.title }];
-  const safetyLink = `<a href="${escapeAttr(articleHref('safety-rules', context.key, article.id))}">${escapeHtml(articleTitle('safety-rules', true))}</a>`;
-  const safety = isAircraftRoute && !isReference ? `<p class="route-safety">${escapeHtml(wording('阅读', '安全提示')).replace('{安全链接}', safetyLink)}</p>` : '';
   const chapters = (context.isRoute || context.isCourse) && !isReference && (siblings.previous || siblings.next) ? `<nav class="chapter-footer" aria-label="章节导航">${siblings.previous ? adjacent(siblings.previous, 'prev') : ''}${siblings.next ? adjacent(siblings.next, 'next') : ''}</nav>` : '';
-  return `<div class="reading-layout${sidebar ? '' : ' reading-single'}">${sidebar}<div class="reading-main">${breadcrumbs(crumbs)}${isReference ? `<div class="return-route"><a href="${escapeAttr(articleHref(returnId, context.key))}">← ${escapeHtml(wording('阅读', '返回'))}${escapeHtml(articleTitle(returnId, true))}</a></div>` : ''}${pageHeader(article.title, article.summary)}${safety}${renderToc(body, true)}<article class="markdown-body">${renderMarkdown(body)}</article>${renderMedia(article.media || [])}${chapters}</div></div>`;
+  return `<div class="reading-layout${sidebar ? '' : ' reading-single'}">${sidebar}<div class="reading-main">${breadcrumbs(crumbs)}${isReference ? `<div class="return-route"><a href="${escapeAttr(articleHref(returnId, context.key))}">← ${escapeHtml(wording('阅读', '返回'))}${escapeHtml(articleTitle(returnId, true))}</a></div>` : ''}${pageHeader(article.title, article.summary)}${renderToc(body, true)}<article class="markdown-body">${renderMarkdown(body)}</article>${renderMedia(article.media || [])}${chapters}</div></div>`;
 }
 function aircraftLabels(item) {
   return [item.category, item.service_status, item.ownership].filter(Boolean).map(escapeHtml).join(' · ');
@@ -296,7 +259,7 @@ function renderContent(item) {
   const showCover = cover && !(item.body || '').includes(`](${item.cover})`);
   const registration = safeUrl(item.registration_url);
   const media = (item.gallery || []).map(src => ({ src, caption: item.title }));
-  const backHref = pageHref(page) + (item.record_type === 'history' ? '#project-history' : '');
+  const backHref = pageHref(page) + (item.kind === 'projects' ? '#project-records' : '');
   return `<div class="container page">${breadcrumbs([{ label: PAGES[page].title, href: backHref }, { label: item.title }])}${pageHeader(item.title, item.summary)}${renderRecordMeta(item)}${showCover ? `<img class="page-cover${item.kind === 'news' ? ' news-cover' : ''}" src="${escapeAttr(cover)}" alt="${escapeAttr(item.cover_alt || item.title)}">` : ''}${fields.length ? `<dl class="notice-facts">${fields.map(([key, label]) => `<div><dt>${label}</dt><dd>${escapeHtml(item[key])}</dd></div>`).join('')}</dl>` : ''}<div class="portal-reading">${renderToc(item.body, true)}<article class="markdown-body">${renderMarkdown(stripTitle(item.body))}</article>${registration ? `<div class="actions"><a class="button" href="${escapeAttr(registration)}" target="_blank" rel="noopener noreferrer">前往报名</a></div>` : ''}${renderMedia(media)}${renderSource(item)}<nav class="content-footer" aria-label="返回列表"><a href="${backHref}">← ${escapeHtml(wording('阅读', '返回'))}${escapeHtml(PAGES[page].title)}</a></nav></div></div>`;
 }
 
@@ -374,7 +337,7 @@ async function navigate(url, push = true, restoreScroll = false) {
 function scrollToHash(hash) {
   let id;
   try { id = decodeURIComponent(hash.slice(1)); } catch { return; }
-  const node = document.getElementById(id);
+  const node = document.getElementById(id === 'project-history' ? 'project-records' : id);
   if (node) node.scrollIntoView();
 }
 function closeMenu() {
@@ -532,7 +495,7 @@ function renderMarkdown(markdown) {
       html.push(`<li>${renderInline(list[2])}</li>`); continue;
     }
     const quote = /^>\s?(.+)$/.exec(line.trim());
-    if (quote) { flush(); closeList(); html.push(`<blockquote>${renderInline(quote[1])}</blockquote>`); continue; }
+    if (quote) { flush(); closeList(); html.push(quote[1].startsWith('[!WARNING] ') ? `<blockquote class="operation-warning">${renderInline(quote[1].slice(11))}</blockquote>` : `<blockquote>${renderInline(quote[1])}</blockquote>`); continue; }
     closeList(); paragraph.push(line.trim());
   }
   flush(); closeList(); if (inCode) html.push(`<pre><code>${escapeHtml(code.join('\n'))}</code></pre>`);
@@ -566,7 +529,89 @@ function renderInline(text) {
 function escapeHtml(text) { return String(text ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;'); }
 function escapeAttr(text) { return escapeHtml(text).replaceAll('`', '&#96;'); }
 
+function guideResultHref(value) {
+  if (typeof value !== 'string' || !value.startsWith('?')) return '';
+  const url = new URL(value, SITE_ROOT);
+  const article = url.searchParams.get('article');
+  const page = url.searchParams.get('page');
+  const kind = url.searchParams.get('kind');
+  if (!(article || PAGES[page] || ['news', 'notices', 'projects', 'aircraft'].includes(kind) && url.searchParams.get('id'))) return '';
+  return url.pathname + url.search + url.hash;
+}
+function renderGuideResults(data) {
+  const matches = (Array.isArray(data.matches) ? data.matches : []).slice(0, 5);
+  if (!matches.length) return '<p class="site-guide-answer">暂时没有找到对应内容，可以换个说法再试。</p>';
+  return `<ol>${matches.map(item => {
+    const href = guideResultHref(item.href);
+    return href ? `<li><a class="site-guide-result" href="${escapeAttr(href)}"><strong>${escapeHtml(item.title)}</strong><span>${escapeHtml(item.reason)}</span></a></li>` : '';
+  }).join('')}</ol>`;
+}
+function initSiteGuide() {
+  const dialog = document.getElementById('siteGuide');
+  const toggle = document.getElementById('guideToggle');
+  const form = document.getElementById('siteGuideForm');
+  const input = document.getElementById('siteGuideQuestion');
+  const results = document.getElementById('siteGuideResults');
+  const submit = form.querySelector('button');
+  let pending = false;
+  let controller;
+  const open = () => {
+    closeMenu();
+    if (!dialog.open) dialog.showModal();
+    input.focus();
+  };
+  toggle.addEventListener('click', open);
+  dialog.addEventListener('close', () => {
+    controller?.abort();
+    toggle.focus({preventScroll: true});
+  });
+  dialog.addEventListener('click', event => {
+    if (event.target.closest('[data-guide-close]') || event.target.closest('.site-guide-result')) dialog.close();
+  });
+  document.addEventListener('keydown', event => {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k' && !event.altKey) {
+      event.preventDefault();
+      open();
+    }
+  });
+  form.addEventListener('submit', async event => {
+    event.preventDefault();
+    const question = input.value.trim();
+    if (!question || pending) return;
+    const endpoint = globalThis.AERO_GUIDE_API_URL;
+    if (!endpoint) {
+      results.innerHTML = '<p>站内导览暂未开放，请先通过栏目查找。</p>';
+      return;
+    }
+    pending = true;
+    submit.disabled = true;
+    submit.setAttribute('aria-label', '正在查找');
+    results.setAttribute('aria-busy', 'true');
+    results.innerHTML = '<p class="site-guide-loading" role="status">正在查找适合你的内容…</p>';
+    controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 45000);
+    let failure = '暂时无法连接导览，请稍后重试。';
+    try {
+      const response = await fetch(endpoint, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({question}), signal: controller.signal});
+      const data = await response.json();
+      if (!response.ok) {
+        if (typeof data.error === 'string') failure = data.error;
+        throw new Error('Guide unavailable');
+      }
+      results.innerHTML = renderGuideResults(data);
+    } catch (error) {
+      results.innerHTML = `<p>${escapeHtml(error.name === 'AbortError' ? '查询已结束，请重新尝试。' : failure)}</p>`;
+    } finally {
+      clearTimeout(timeout);
+      pending = false;
+      submit.disabled = false;
+      submit.setAttribute('aria-label', '查找');
+      results.removeAttribute('aria-busy');
+    }
+  });
+}
 async function init() {
+  initSiteGuide();
   document.addEventListener('click', handlePrintingHelp);
   document.addEventListener('click', followLink);
   document.getElementById('menuToggle').addEventListener('click', () => {
@@ -592,4 +637,4 @@ async function init() {
   await navigate(location.href, false);
 }
 if (typeof document !== 'undefined' && document.getElementById('main')) init();
-if (typeof module !== 'undefined' && module.exports) module.exports = { setSiteCopy, ROUTES, HANDBOOKS, FLIGHT_COURSES, PAGES, PORTAL_ARTICLES, getArticleContext, articleHref, readLocation, chapterNeighbours, renderMarkdown, extractHeadings, renderSidebar, renderReader, renderGuide, renderResources, renderContent, renderAircraftDirectory, renderAircraftDetail, renderHero, renderHome, renderPortal, renderProjectRecords, renderActivities, safeUrl };
+if (typeof module !== 'undefined' && module.exports) module.exports = { guideResultHref, renderGuideResults, setSiteCopy, ROUTES, HANDBOOKS, FLIGHT_COURSES, PAGES, PORTAL_ARTICLES, getArticleContext, articleHref, readLocation, chapterNeighbours, renderMarkdown, extractHeadings, renderSidebar, renderReader, renderGuide, renderResources, renderContent, renderAircraftDirectory, renderAircraftDetail, renderHero, renderHome, renderPortal, renderProjectRecords, renderActivities, safeUrl };

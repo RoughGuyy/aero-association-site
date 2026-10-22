@@ -26,8 +26,8 @@ class Article:
 
 def article_paths() -> list[Path]:
     return sorted(path for path in CONTENT_DIR.rglob("*.md")
-                  if not path.name.startswith("_") and path.name != "README.md"
-                  and not {"活动新闻", "活动通知", "项目记录", "航模档案"}.intersection(path.parts))
+                  if not any(part.startswith("_") for part in path.relative_to(CONTENT_DIR).parts) and path.name != "README.md"
+                  and not {"活动记录", "活动通知", "项目记录", "航模档案"}.intersection(path.parts))
 
 
 def load_articles() -> list[Article]:

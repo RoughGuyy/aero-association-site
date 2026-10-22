@@ -1,0 +1,11 @@
+{
+  "name": "aero-association-guide",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:catalog": "python build_catalog.py",
+    "check": "npm run build:catalog && node --test ../tests/guide-worker.test.mjs",
+    "deploy": "npm run build:catalog && wrangler deploy"
+  },
+  "devDependencies": { "wrangler": "4.151.3" }
+}

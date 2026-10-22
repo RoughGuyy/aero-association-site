@@ -1,0 +1,329 @@
+{
+  "version": 1,
+  "pages": [
+    {
+      "page": "home",
+      "article": "association-intro",
+      "title": "首页",
+      "purpose": "了解空天科协及网站主要入口。"
+    },
+    {
+      "page": "guide",
+      "article": "newcomer-path",
+      "title": "新人指南",
+      "purpose": "加入协会、交流群、活动地点，以及不同方向的入门入口。具体方向入门应推荐下级路线。",
+      "children": [
+        {
+          "article": "fixed-wing-path",
+          "title": "固定翼入门",
+          "route": "fixed-wing",
+          "purpose": "了解固定翼从零开始的完整学习顺序；具体安装、制作、首飞问题进入下级文章。",
+          "match": {
+            "terms": [
+              "固定翼"
+            ],
+            "intents": [
+              "入门",
+              "新手",
+              "零基础",
+              "初学",
+              "怎么学",
+              "如何学",
+              "想学",
+              "想玩",
+              "从哪",
+              "开始"
+            ],
+            "exclude": [
+              "模拟器",
+              "凤凰",
+              "魔翼",
+              "首飞",
+              "对频",
+              "重心",
+              "舵面",
+              "电池",
+              "充电",
+              "焊接",
+              "制作",
+              "装配",
+              "exp",
+              "dr"
+            ]
+          },
+          "references": [
+            "tx12-quickstart",
+            "setup-radio",
+            "opentx-logic",
+            "radio-curves",
+            "equipment-flow",
+            "battery-charging",
+            "simulator-goals",
+            "aerobatics-training"
+          ],
+          "children": [
+            {
+              "article": "fixed-wing-simulator"
+            },
+            {
+              "article": "moyi90"
+            },
+            {
+              "article": "first-flight-check"
+            },
+            {
+              "article": "after-moyi90-airframes"
+            }
+          ]
+        },
+        {
+          "article": "fpv-path",
+          "title": "穿越机入门",
+          "route": "fpv",
+          "match": {
+            "terms": [
+              "穿越机",
+              "fpv"
+            ],
+            "intents": [
+              "入门",
+              "新手",
+              "零基础",
+              "初学",
+              "怎么学",
+              "如何学",
+              "想学",
+              "想玩",
+              "从哪",
+              "开始"
+            ],
+            "exclude": [
+              "对频",
+              "充电",
+              "焊接",
+              "遥控器设置"
+            ]
+          },
+          "references": [
+            "tx12-quickstart",
+            "setup-radio",
+            "opentx-logic",
+            "battery-charging",
+            "simulator-goals"
+          ]
+        },
+        {
+          "article": "helicopter-path",
+          "title": "直升机入门",
+          "route": "helicopter",
+          "match": {
+            "terms": [
+              "直升机"
+            ],
+            "intents": [
+              "入门",
+              "新手",
+              "零基础",
+              "初学",
+              "怎么学",
+              "如何学",
+              "想学",
+              "想玩",
+              "从哪",
+              "开始"
+            ],
+            "exclude": [
+              "对频",
+              "充电",
+              "焊接"
+            ]
+          },
+          "references": [
+            "battery-charging",
+            "simulator-goals"
+          ]
+        }
+      ]
+    },
+    {
+      "page": "resources",
+      "article": "resource-center",
+      "title": "技术资料",
+      "purpose": "浏览各类技术资料；具体设备、软件、训练问题进入相应资料。",
+      "children": [
+        {
+          "title": "设计与制作",
+          "group": true,
+          "children": [
+            {
+              "article": "equipment-flow"
+            },
+            {
+              "article": "3d-printing"
+            },
+            {
+              "article": "design-making"
+            }
+          ],
+          "id": "design-making-group",
+          "anchor": "design-making",
+          "pending": "设计方面的内容待完善。"
+        },
+        {
+          "title": "遥控器与航电",
+          "group": true,
+          "children": [
+            {
+              "article": "tx12-quickstart"
+            },
+            {
+              "article": "opentx-logic"
+            },
+            {
+              "article": "setup-radio"
+            },
+            {
+              "article": "radio-curves"
+            }
+          ],
+          "id": "radio-electronics-group",
+          "anchor": "radio-electronics"
+        },
+        {
+          "title": "知识与训练参考",
+          "group": true,
+          "children": [
+            {
+              "article": "battery-charging"
+            },
+            {
+              "article": "simulator-goals"
+            }
+          ],
+          "id": "knowledge-training-group",
+          "anchor": "knowledge-training"
+        },
+        {
+          "title": "飞行技巧训练",
+          "group": true,
+          "children": [
+            {
+              "article": "flight-training",
+              "course": true,
+              "children": [
+                {
+                  "article": "flight-training-plan"
+                },
+                {
+                  "article": "flight-controls-turns"
+                },
+                {
+                  "article": "flight-track-wind"
+                },
+                {
+                  "article": "flight-takeoff-trim"
+                },
+                {
+                  "article": "flight-landing-goaround"
+                }
+              ],
+              "title": "初级飞行教程"
+            },
+            {
+              "article": "aerobatics-training",
+              "course": true,
+              "children": [
+                {
+                  "article": "flight-aerobatic-aircraft"
+                },
+                {
+                  "article": "flight-aerobatic-foundations"
+                },
+                {
+                  "article": "flight-loop-roll"
+                },
+                {
+                  "article": "flight-aileron-roll"
+                },
+                {
+                  "article": "flight-immelmann"
+                },
+                {
+                  "article": "flight-cuban-eight"
+                },
+                {
+                  "article": "flight-reverse-cuban-eight"
+                },
+                {
+                  "article": "flight-point-rolls"
+                },
+                {
+                  "article": "flight-aerobatic-combinations"
+                },
+                {
+                  "article": "flight-aerobatic-variations"
+                }
+              ],
+              "title": "特技飞行教程"
+            }
+          ],
+          "id": "flight-skills-group",
+          "anchor": "flight-skills"
+        },
+        {
+          "title": "航模运动知识",
+          "group": true,
+          "children": [
+            {
+              "article": "fai-model-classification"
+            }
+          ],
+          "id": "model-sports-group",
+          "anchor": "model-sports"
+        }
+      ]
+    },
+    {
+      "page": "aircraft",
+      "id": "aircraft-directory",
+      "title": "机型目录",
+      "purpose": "浏览协会机型及各架飞机的档案。",
+      "collection": "aircraft"
+    },
+    {
+      "page": "projects",
+      "article": "competitions-and-growth",
+      "title": "项目与竞赛",
+      "purpose": "了解CUADC、Ablefly无人机足球等赛事；查看成员参与的挑战杯、中国国际大学生创新大赛项目与获奖。",
+      "collection": "projects"
+    },
+    {
+      "page": "activities",
+      "id": "activities",
+      "title": "活动与实践",
+      "purpose": "科普活动参与指南、常见活动流程，以及历次活动记录。",
+      "collection": "news"
+    }
+  ],
+  "legacyRoutes": {
+    "design": {
+      "title": "设计与制作",
+      "articles": [
+        "design-making"
+      ],
+      "references": [
+        "moyi90",
+        "3d-printing",
+        "equipment-flow",
+        "opentx-logic",
+        "tx12-quickstart",
+        "radio-curves",
+        "battery-charging"
+      ]
+    }
+  },
+  "unlistedArticles": [
+    "activity-guide",
+    "rules-overview"
+  ]
+}

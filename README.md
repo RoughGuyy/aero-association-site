@@ -8,14 +8,22 @@
 
 | 位置 | 用途 |
 | --- | --- |
-| [网站内容](网站内容/README.md) | 首页、新人指南、技术资料、项目、新闻和通知的正式文字 |
+| [网站内容](网站内容/README.md) | 首页、新人指南、技术资料、机型、项目与竞赛、活动与实践的正式文字 |
 | [发布资源](发布资源/README.md) | 网站正在使用的照片、视频、字体和附件 |
 | [frontend](frontend) | 页面结构、样式与交互 |
 | [aero_association_agent](aero_association_agent) | 读取 Markdown/JSON 并生成公开数据的程序 |
 | [build_static_site.py](build_static_site.py) | 生成可发布网站 |
 | [tests](tests) | 页面结构、链接和响应式规则检查 |
 
-原始素材、内部记录、密钥和问答后端不在公开仓库中。不要把个人 `.env`、未确认公开的照片或内部资料加入提交。
+原始素材、内部记录和密钥不在公开仓库中。不要把个人 `.env`、未确认公开的照片或内部资料加入提交。站内导览的云函数位于 [cloudflare](cloudflare/README.md)，只索引公开网站内容。
+
+## 项目结构
+
+网站呈现、内容目录与导览使用同一套层级，见 [内容编辑索引](网站内容/README.md) 和 [站点结构](网站内容/站点结构.json)。修改正文找 Markdown；调整栏目、路线、课程与文章归属找站点结构；修改视觉和交互找 frontend。
+
+公开代码按职责分开：`aero_association_agent` 读取内容，`frontend` 渲染页面，`cloudflare` 提供导览服务，`tests` 验证行为，`scripts` 是本地维护工具，`dist` 是自动生成的预览／发布结果，不直接编辑。
+
+`source_materials`、`内部资料`、本地 `.env`、`data` 和历史辅助工具不属于官网内容来源，不参与公开索引；保留原件与本地配置。
 
 ## 本地预览
 
@@ -23,11 +31,10 @@
 
 ```shell
 python -m pip install -r requirements-static.txt
-python build_static_site.py
-python -m http.server 8000 --directory dist
+python scripts/preview_site.py
 ```
 
-浏览器打开 `http://127.0.0.1:8000/`。修改文案或资源后，重新运行构建命令并刷新页面。
+浏览器打开 `http://127.0.0.1:8000/`。保持预览进程运行，修改网站内容、页面代码或发布资源并保存后，会自动构建和刷新浏览器。格式错误时保留上次正常预览，修正并保存即可。只绑定本机，不会自动发布官网。
 
 提交前运行：
 

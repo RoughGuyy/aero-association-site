@@ -11,18 +11,17 @@ site.setSiteCopy(copy);
 
 test('flight training exposes two overviews and navigation stays within each course', () => {
   const vm = require('node:vm');
-  const sandbox = { module: { exports: {} }, URL, URLSearchParams };
+  const sandbox = { module: { exports: {} }, URL, URLSearchParams, AERO_SITE_STRUCTURE: require('../网站内容/站点结构.json') };
   vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../frontend/app.js'), 'utf8'), sandbox);
   const app = sandbox.module.exports;
   app.setSiteCopy(copy);
   const group = app.HANDBOOKS.find(item => item.title === '飞行技巧训练');
   assert.deepEqual(Array.from(group.articles), ['flight-training', 'aerobatics-training']);
-  const folder = path.join(__dirname, '../网站内容/02_技术资料/固定翼飞行训练');
-  const articles = fs.readdirSync(folder).filter(name => name.endsWith('.md') && !name.startsWith('_')).map(name => {
+  const folder = path.join(__dirname, '../网站内容/02_技术资料/飞行技巧训练');
+  const articles = fs.readdirSync(folder, {recursive: true}).filter(name => name.endsWith('.md') && !path.basename(name).startsWith('_')).map(name => {
     const raw = fs.readFileSync(path.join(folder, name), 'utf8');
     return { id: raw.match(/^id: (.+)$/m)[1], title: raw.match(/^title: (.+)$/m)[1] };
   });
-  articles.push({ id: 'aerobatics-training', title: '特技飞行教程' });
   sandbox.trainingArticles = articles;
   vm.runInNewContext('allArticles = trainingArticles', sandbox);
   const html = app.renderResources({ body: '' });
@@ -85,7 +84,7 @@ test('homepage overlays live text on one twilight image without extra hero copy'
 });
 
 test('hero shows school, association names and an artistic guide link; introduction stays below', () => {
-  const body = articleBody('00_首页/协会简介.md');
+  const body = '# 空天科协\n\n依托航空航天学院开展学生实践。';
   const html = site.renderHome(undefined, body);
   const hero = html.split('<section class="section">')[0];
   assert.ok(hero.includes('<p class="institution">电子科技大学</p>'));
@@ -160,10 +159,10 @@ test('unpublished hero candidates are absent from the homepage', () => {
 test('a direct aircraft link has only its own ordered chapters', () => {
   const context = site.getArticleContext('fixed-wing-simulator');
   assert.equal(context.key, 'fixed-wing');
-  assert.deepEqual(context.articles, ['fixed-wing-simulator', 'moyi90', 'first-flight-check', 'after-moyi90-airframes']);
+  assert.deepEqual(context.articles, ['fixed-wing-path', 'fixed-wing-simulator', 'moyi90', 'first-flight-check', 'after-moyi90-airframes']);
   const sidebar = site.renderSidebar(context, 'moyi90');
   const mainChapters = sidebar.match(/<nav>([\s\S]*?)<\/nav>/)[1];
-  assert.equal((mainChapters.match(/class="chapter"/g) || []).length, 4);
+  assert.equal((mainChapters.match(/class="chapter"/g) || []).length, 5);
   assert.ok(!mainChapters.includes('fpv-path'));
   assert.ok(!mainChapters.includes('association-intro'));
   assert.match(mainChapters, /article=moyi90[^>]+aria-current="page"/);
@@ -171,7 +170,7 @@ test('a direct aircraft link has only its own ordered chapters', () => {
 
 test('the first and last chapter do not continue into other aircraft routes', () => {
   const context = site.getArticleContext('moyi90');
-  assert.deepEqual(site.chapterNeighbours('fixed-wing-simulator', context), { previous: '', next: 'moyi90' });
+  assert.deepEqual(site.chapterNeighbours('fixed-wing-path', context), { previous: '', next: 'fixed-wing-simulator' });
   assert.deepEqual(site.chapterNeighbours('after-moyi90-airframes', context), { previous: 'first-flight-check', next: '' });
   for (const id of ['fpv-path', 'helicopter-path']) {
     assert.deepEqual(site.chapterNeighbours(id, site.getArticleContext(id)), { previous: '', next: '' });
@@ -226,19 +225,24 @@ test('published content detail displays supplied event fields and attachments', 
   assert.ok(!html.includes('报名截止'));
 });
 
-test('historical team stories are separate from association project records', () => {
-  const html = site.renderProjectRecords([
+test('all member projects share one heading and rendering format regardless of legacy type', () => {
+  const records = [
     { id: 'current-build', title: '制作记录', date: '2026-09-01' },
     { id: 'old-team', title: '往届团队', record_type: 'history', project_type: '历史团队报道', date: '2022-06-10', date_label: '报道日期' }
-  ]);
-  const history = html.split('id="project-history"')[1];
+  ];
+  const html = site.renderProjectRecords(records);
+  assert.equal((html.match(/<section /g) || []).length, 1);
+  assert.equal((html.match(/<h2>/g) || []).length, 1);
+  assert.ok(html.includes('成员项目与经历'));
   assert.ok(html.includes('id="project-records"'));
-  assert.ok(history.includes('往届成员与相关团队'));
-  assert.ok(history.includes('id=old-team'));
-  assert.ok(!history.includes('id=current-build'));
-  assert.ok(history.includes('class="history-stories"'));
-  assert.ok(!history.includes('class="record-grid"'));
-  assert.ok(!site.renderProjectRecords([]).includes('项目资料正在整理'));
+  assert.ok(html.includes('id=current-build'));
+  assert.ok(html.includes('id=old-team'));
+  assert.ok(!html.includes('project-history'));
+  assert.ok(!html.includes('history-stories'));
+  assert.ok(html.includes('class="record-grid"'));
+  const detail = site.renderContent({...records[1], kind: 'projects', body: ''});
+  assert.ok(detail.includes('href="/?page=projects#project-records"'));
+  assert.equal(site.renderProjectRecords([]), '');
 });
 
 test('recruitment is concentrated in the newcomer guide with the daily QQ group kept distinct', () => {
@@ -255,7 +259,7 @@ test('recruitment is concentrated in the newcomer guide with the daily QQ group 
 });
 
 test('CUADC employment evidence is subordinate to the competition, not a standalone poster section', () => {
-  const body = articleBody('03_项目与竞赛/项目与竞赛.md');
+  const body = articleBody('04_项目与竞赛/项目与竞赛.md');
   const headings = site.extractHeadings(body);
   assert.ok(!headings.some(item => item.text.includes('大疆')));
   const cuadc = body.split('## CUADC')[1].split('## 相关学科竞赛')[0];
@@ -277,7 +281,7 @@ test('CUADC employment evidence is subordinate to the competition, not a standal
 
 test('resource directory separates learning routes from reference entries', () => {
   const vm = require('node:vm');
-  const sandbox = { module: { exports: {} }, URL, URLSearchParams };
+  const sandbox = { module: { exports: {} }, URL, URLSearchParams, AERO_SITE_STRUCTURE: require('../网站内容/站点结构.json') };
   vm.createContext(sandbox);
   vm.runInContext(fs.readFileSync(path.join(__dirname, '../frontend/app.js'), 'utf8'), sandbox);
   sandbox.module.exports.setSiteCopy(copy);
@@ -286,7 +290,7 @@ test('resource directory separates learning routes from reference entries', () =
   assert.ok(html.includes('id="learning-title"'));
   assert.ok(html.includes('id="reference-title"'));
   assert.equal((html.match(/class="resource-route-link"/g) || []).length, 3);
-  assert.ok(html.includes('article=fixed-wing-simulator&amp;route=fixed-wing'));
+  assert.ok(html.includes('article=fixed-wing-path&amp;route=fixed-wing'));
   assert.ok(!html.includes('article=moyi90'));
   assert.ok(!/[→↗]/.test(site.renderHome()));
 });
@@ -312,7 +316,7 @@ test('old activity URLs resolve to the single merged activity page', () => {
 });
 
 test('merged activity page shows editable participation guide before records', () => {
-  const html = site.renderActivities({ news: [{ id: 'past-event', title: '活动记录', date: '2025-12-16' }], notices: [] }, { title: '参与指南', body: articleBody('04_科普活动/活动参与说明.md') });
+  const html = site.renderActivities({ news: [{ id: 'past-event', title: '活动记录', date: '2025-12-16' }], notices: [] }, { title: '参与指南', body: articleBody('05_活动与实践/参与指南.md') });
   assert.ok(html.includes('id="activity-records"'));
   assert.ok(html.includes('id="participation-guide"'));
   assert.ok(html.includes('kind=news&amp;id=past-event'));
@@ -330,7 +334,7 @@ test('homepage introduces activities without a second set of tutorial entrances'
   }
   assert.ok(!html.includes('page=outreach'));
   assert.ok(!html.includes('page=updates'));
-  assert.deepEqual([...html.matchAll(/href="([^"\s]*\?article=[^"]+)"/g)].map(match => match[1]), ['/?article=safety-rules']);
+  assert.deepEqual([...html.matchAll(/href="([^"\s]*\?article=[^"]+)"/g)].map(match => match[1]), []);
   assert.ok(!html.includes('#activity-records'));
   assert.ok(!html.includes('学飞快捷入口'));
 });
@@ -358,11 +362,11 @@ test('a shared reference has its own subject and only a return to the originatin
   assert.ok(!direct.includes('route-sidebar'));
 });
 
-test('aircraft chapters retain a distinct safety prerequisite, not a reference catalogue', () => {
+test('aircraft chapters no longer display a separate safety prerequisite', () => {
   for (const id of ['fixed-wing-simulator', 'moyi90', 'fpv-path', 'helicopter-path']) {
     const html = site.renderReader({ id, title: id, body: '正文' }, site.getArticleContext(id), {});
-    assert.ok(html.includes('操作前必读'));
-    assert.match(html, /href="[^\"]*article=safety-rules[^\"]*"/);
+    assert.ok(!html.includes('操作前必读'));
+    assert.ok(!html.includes('article=safety-rules'));
     assert.ok(!html.includes('常用参考'));
   }
 });
@@ -448,7 +452,7 @@ test('fixed-wing simulator guide keeps Phoenix as the main flow and other simula
 });
 
 test('the safety prerequisite does not send newcomers into a second course', () => {
-  const safety = articleBody('02_技术资料/安全与训练/安全须知.md');
+  const safety = articleBody('02_技术资料/知识与训练参考/锂电池与充电.md');
   assert.ok(!safety.includes('?article='));
   const lastChapter = articleBody('01_新人指南/固定翼入门/04_后续机型.md');
   assert.ok(lastChapter.indexOf('?article=aerobatics-training') > lastChapter.indexOf('## 进入这些机型前'));
@@ -458,7 +462,8 @@ test('the safety prerequisite does not send newcomers into a second course', () 
 test('association introduction stays on home and recruitment lives in the newcomer guide', () => {
   const body = articleBody('00_首页/协会简介.md');
   const home = site.renderHome(undefined, body);
-  for (const term of ['电子科技大学航空航天科技协会', '依托航空航天学院']) assert.ok(home.includes(term), term);
+  assert.ok(home.includes('电子科技大学航空航天科技协会'));
+  if (site.renderMarkdown(body).trim()) assert.ok(home.includes(site.renderMarkdown(body).replace(/<[^>]*>/g, '').trim()));
   for (const term of ['451851387', '/assets/recruitment-qq-qr.svg', 'id="join"']) assert.ok(!home.includes(term), term);
   const guide = site.renderGuide({ body: articleBody('01_新人指南/新人指南.md'), summary: '' });
   for (const term of ['焊接工具', '451851387', '/assets/recruitment-qq-qr.svg', 'id="join"']) assert.ok(guide.includes(term), term);
@@ -546,24 +551,26 @@ test('newcomers see three complete aircraft routes, with shared skills afterward
   assert.ok(html.includes('焊台与热风枪'));
   assert.equal((html.match(/src="\/assets\/guide-/g) || []).length, 3);
   assert.ok(html.includes('难度较高'));
-  assert.ok(html.includes('可以同时参与'));
   assert.ok(!html.includes('route=design'));
 });
 
-test('homepage keeps its safety reading link', () => {
+test('homepage honors removed optional wording and uses its project title as the only entrance', () => {
   const home = site.renderHome();
-  assert.match(home, /class="safety-note"[\s\S]*?<a href="\/\?article=safety-rules">安全须知<\/a>/);
+  assert.ok(!home.includes('undefined'));
+  assert.ok(!home.includes('class="safety-note"'));
+  assert.match(home, /<h2><a class="section-heading-link" href="\/\?page=projects">项目与竞赛<\/a><\/h2>/);
+  assert.equal((home.match(/page=projects/g) || []).length, 1);
 });
 
 test('equipment instructions preserve the current registration and return process', () => {
-  const body = articleBody('02_技术资料/设备与制作/设备取用.md');
+  const body = articleBody('02_技术资料/设计与制作/设备取用.md');
   const html = site.renderMarkdown(body);
   for (const text of ['部分设备统计', '借用怎么登记', '群公告', '请勿改动他人的记录', '取用前检查', '更新归还日期或归还状态']) assert.ok(html.includes(text));
   assert.ok(body.indexOf('## 借用怎么登记') < body.indexOf('## 取用前检查'));
 });
 
 test('charging defaults to 2C only within the battery manufacturer limits', () => {
-  const body = articleBody('02_技术资料/安全与训练/安全须知.md');
+  const body = articleBody('02_技术资料/知识与训练参考/锂电池与充电.md');
   for (const text of ['默认按 2C', '低于 2C', '按较低值', '无法确认允许倍率时，先不要充电', '3000mAh', '6A', '放电倍率不能当作充电倍率']) {
     assert.ok(body.includes(text), text);
   }
@@ -575,9 +582,9 @@ test('design reference belongs to resources and is not a fourth learning route',
   assert.equal((html.match(/<h3>设计与制作<\/h3>/g) || []).length, 1);
   const handbook = site.HANDBOOKS.find(item => item.title === '设计与制作');
   assert.ok(handbook?.articles.includes('design-making'));
-  assert.deepEqual(handbook.articles, ['design-making']);
-  const equipment = site.HANDBOOKS.find(item => item.title === '设备与加工');
-  assert.deepEqual(equipment.articles, ['equipment-flow', '3d-printing']);
+  assert.deepEqual(handbook.articles, ['equipment-flow', '3d-printing', 'design-making']);
+  assert.ok(!site.HANDBOOKS.some(item => item.title === '设备与加工'));
+  assert.ok(html.includes('设计方面的内容待完善。'));
   const reader = site.renderReader({ id: 'design-making', title: '设计与制作', body: '' }, site.getArticleContext('design-making'), {});
   assert.ok(reader.includes('href="/?page=resources"'));
   assert.ok(!reader.includes('href="/?page=guide"'));
@@ -585,8 +592,11 @@ test('design reference belongs to resources and is not a fourth learning route',
 
 test('homepage treats participation as compatible and links one activity overview', () => {
   const html = site.renderHome();
-  assert.ok(html.includes('可以同时参与'));
-  assert.ok(html.includes('有制作、编程、建模或飞行经验'));
+  assert.ok(html.includes(copy.home.基础说明));
+  for (const item of copy.home.参与内容) {
+    assert.ok(html.includes(item.标题));
+    assert.ok(html.includes(item.说明));
+  }
   assert.ok(html.includes('活动与实践'));
   assert.ok(html.includes('科学营、少年营、研学和校园展示'));
   assert.equal((html.match(/page=activities/g) || []).length, 1);
@@ -594,16 +604,14 @@ test('homepage treats participation as compatible and links one activity overvie
 });
 
 test('design materials are marked pending and outreach pairs 2026 images with 2026 text', () => {
-  const design = articleBody('02_技术资料/设备与制作/设计与制作.md');
-  assert.ok(design.includes('## 待完善'));
-  assert.ok(design.indexOf('?article=3d-printing') < design.indexOf('## 待完善'));
-  assert.ok(design.includes('飞机设计'));
-  assert.ok(design.includes('?article=3d-printing'));
-  assert.ok(design.includes('?article=equipment-flow'));
+  const design = articleBody('02_技术资料/设计与制作/焊台与热风枪.md');
+  assert.ok(!design.includes('?article=3d-printing'));
+  assert.ok(!design.includes('## 待完善'));
+  assert.ok(site.renderResources({body: ''}).includes('设计方面的内容待完善。'));
   assert.ok(!design.includes('?article=moyi90'));
   assert.ok(design.includes('/assets/workshop-soldering-station.png'));
   assert.ok(design.includes('/assets/workshop-hot-air-station.png'));
-  const outreach = articleBody('04_科普活动/科普活动.md');
+  const outreach = articleBody('05_活动与实践/_历史资料/科普活动.md');
   assert.ok(!outreach.includes('北京高中'));
   assert.ok(!outreach.includes('2019 年'));
   assert.ok(outreach.includes('2026 年科学营'));
@@ -611,7 +619,7 @@ test('design materials are marked pending and outreach pairs 2026 images with 20
 });
 
 test('school outreach photos are not presented as the Shiwai Bairen visit', () => {
-  const outreach = articleBody('04_科普活动/科普活动.md');
+  const outreach = articleBody('05_活动与实践/_历史资料/科普活动.md');
   const schoolVisits = outreach.split('## 中小学研学')[1].split('## 2026 年科学营')[0];
   assert.ok(schoolVisits.includes('/assets/beijing-highschool-class.jpg'));
   assert.ok(!schoolVisits.includes('百人计划'));
@@ -621,7 +629,7 @@ test('school outreach photos are not presented as the Shiwai Bairen visit', () =
   assert.ok(!camp.includes('20 多架'));
 });
 test('editing guide headings preserves its three aircraft cards and their order', () => {
-  const body = articleBody('01_新人指南/新人指南.md').replace('[固定翼入门]', '[从固定翼开始]').replace('加入空天科协 {#start}', '来之前看看 {#start}');
+  const body = articleBody('01_新人指南/新人指南.md').replace('[固定翼入门]', '[从固定翼开始]').replace(/^## .+ \{#start\}$/m, '## 来之前看看 {#start}');
   const html = site.renderGuide({ body, title: '来协会玩', summary: '' });
   assert.equal((html.match(/class="guide-option"/g) || []).length, 3);
   assert.ok(html.includes('<h1>来协会玩</h1>'));
@@ -637,7 +645,6 @@ test('homepage and shared copy edits render as text, not executable markup', () 
   revised.home.主视觉图片 = 'javascript:alert(1)';
   revised.home.主视觉描述 = '照片 <script>alert(3)</script>';
   revised.home.首屏英文 = '<script>alert(4)</script>';
-  revised.common.栏目.projects = '竞赛与项目';
   revised.common.站点.QQ群 = '123456789';
   try {
     site.setSiteCopy(revised);
@@ -648,11 +655,24 @@ test('homepage and shared copy edits render as text, not executable markup', () 
     assert.ok(home.includes('lang="en">&lt;script&gt;'));
     assert.ok(!home.includes('<script>'));
     assert.ok(!home.includes('javascript:'));
-    assert.equal(site.PAGES.projects.title, '竞赛与项目');
     assert.ok(guide.includes('451851387'));
     assert.ok(!guide.includes('123456789'));
     const edited = site.renderGuide({ body: articleBody('01_新人指南/新人指南.md').replace('451851387', '987654321'), summary: '' });
     assert.ok(edited.includes('987654321'));
     assert.ok(!edited.includes('451851387'));
   } finally { site.setSiteCopy(copy); }
+});
+
+
+test('operation warnings are red callouts at the practical steps in each aircraft route', () => {
+  for (const file of ['01_新人指南/固定翼入门/02_魔翼90制作.md', '01_新人指南/固定翼入门/03_首飞检查与基础航线.md', '01_新人指南/穿越机入门.md', '01_新人指南/直升机入门.md']) {
+    const body = articleBody(file);
+    assert.ok(body.includes('[!WARNING]'));
+    assert.ok(body.includes('带电调试不带桨') || body.includes('带电检查'));
+    const html = site.renderMarkdown(body);
+    assert.ok(html.includes('class="operation-warning"'));
+    assert.ok(!html.includes('[!WARNING]'));
+  }
+  assert.ok(site.HANDBOOKS.some(group => group.articles.includes('battery-charging')));
+  assert.ok(!site.HANDBOOKS.some(group => group.articles.includes('safety-rules')));
 });
