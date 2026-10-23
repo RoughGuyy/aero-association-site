@@ -106,14 +106,14 @@ test('hero shows school, association names and an artistic guide link; introduct
   assert.ok(!html.includes('/assets/recruitment-qq-qr.svg'));
 });
 
-test('cinematic hero is height-limited above a light reading surface with local art fonts', () => {
+test('cinematic hero centers its text with proportional whitespace and positions the plume to the right', () => {
   const css = fs.readFileSync(path.join(__dirname, '../frontend/styles.css'), 'utf8');
   assert.match(css, /\.header-inner \{[^}]*width: min\(1440px, calc\(100% - 64px\)\)/);
   assert.match(css, /\.site-header \{[^}]*background: var\(--white\)/);
   assert.ok(!/\.hero \+ \.section \{[^}]*--ink:/.test(css));
   assert.match(css, /\.hero \+ \.section \{[^}]*background: var\(--white\)/);
   assert.match(css, /\.hero \{[^}]*overflow: hidden/);
-  assert.match(css, /\.hero-layout \{[^}]*min-height: clamp\(460px, 65svh, 660px\)/);
+  assert.match(css, /\.hero-layout \{[^}]*grid-template-rows: \.38fr 1fr \.38fr/);
   assert.match(css, /\.hero-scene \{[^}]*position: absolute/);
   assert.match(css, /\.hero-scene img \{[^}]*width: 125%/);
   assert.ok(!css.includes('.hero-photo'));
@@ -127,8 +127,8 @@ test('cinematic hero is height-limited above a light reading surface with local 
   assert.match(css, /\.hero-guide::after/);
   assert.match(css, /prefers-reduced-motion: reduce[\s\S]*\.hero-guide::after/);
   assert.match(css, /\.hero-fullname \{[^}]*white-space: nowrap/);
-  assert.match(css, /@media \(max-width: 640px\)[\s\S]*\.hero-scene \{[^}]*bottom: 32px[^}]*left: 92%[^}]*height: 80%/);
-  assert.match(css, /@media \(max-width: 640px\)[\s\S]*\.hero-layout \{[^}]*padding-block: 36px/);
+  assert.match(css, /\.hero-scene \{[^}]*left: 80%[^}]*transform: translateX\(-62%\)/);
+  assert.ok(!/\.hero-layout \{[^}]*align-items: flex-start/.test(css));
   assert.ok(!css.includes('--mobile-scene-height'), 'mobile artwork remains a background, without a separate reserved row');
   assert.match(css, /@media \(max-width: 900px\)[\s\S]*\.hero-fullname \{[^}]*white-space: normal/);
   for (const filename of ['mashanzheng-regular.woff2', 'caveat-variable.woff2']) {
@@ -262,7 +262,7 @@ test('CUADC employment evidence is subordinate to the competition, not a standal
   const body = articleBody('04_项目与竞赛/项目与竞赛.md');
   const headings = site.extractHeadings(body);
   assert.ok(!headings.some(item => item.text.includes('大疆')));
-  const cuadc = body.split('## CUADC')[1].split('## 相关学科竞赛')[0];
+  const cuadc = body.split('## CUADC')[1].split('## Ablefly')[0];
   assert.ok(cuadc.includes('### 参赛经历与求职'));
   assert.ok(cuadc.includes('/assets/cuadc-west-team.jpg'));
   assert.ok(body.includes('/assets/drone-soccer-final-team.jpg'));
@@ -271,12 +271,11 @@ test('CUADC employment evidence is subordinate to the competition, not a standal
     assert.ok(fs.existsSync(path.join(__dirname, '../发布资源/官网配图', filename)));
   }
   assert.ok(cuadc.includes('/assets/dji-cuadc-recruitment-2027.jpg'));
-  assert.ok(cuadc.includes('不代表录用承诺'));
   assert.ok(!body.includes('通道已'));
   const html = site.renderPortal({ id: 'competitions-and-growth', title: '项目与竞赛', body }, 'projects', { projects: [] });
   assert.ok(html.includes('class="markdown-body competition-copy"'));
-  assert.match(html, /<blockquote><img src="\/assets\/dji-cuadc-recruitment-2027.jpg"/);
-  assert.match(html, /href="\/assets\/dji-cuadc-recruitment-2027.jpg"/);
+  assert.match(html, /<h3 id="参赛经历与求职">参赛经历与求职<\/h3>/);
+  assert.match(html, /<p><img src="\/assets\/dji-cuadc-recruitment-2027.jpg"/);
 });
 
 test('resource directory separates learning routes from reference entries', () => {

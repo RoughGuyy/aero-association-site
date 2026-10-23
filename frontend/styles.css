@@ -74,12 +74,14 @@ p { margin: 0 0 1em; }
 .text-link { display: inline-block; font-weight: 600; text-decoration-thickness: 1px; }
 .actions { display: flex; flex-wrap: wrap; gap: 12px 22px; align-items: center; margin-top: 24px; }
 .hero { position: relative; isolation: isolate; overflow: hidden; background: linear-gradient(180deg, #030f23, #061b2c); }
-.hero-scene { position: absolute; top: 0; right: max(0px, calc((100vw - 1800px) / 2)); height: 100%; aspect-ratio: 2240 / 1216; overflow: hidden; pointer-events: none; -webkit-mask-image: linear-gradient(90deg, transparent, #000 20%, #000 88%, transparent); mask-image: linear-gradient(90deg, transparent, #000 20%, #000 88%, transparent); }
+.hero-scene { position: absolute; top: 0; left: 80%; height: 100%; aspect-ratio: 2240 / 1216; transform: translateX(-62%); overflow: hidden; pointer-events: none; -webkit-mask-image: linear-gradient(90deg, transparent, #000 20%, #000 88%, transparent); mask-image: linear-gradient(90deg, transparent, #000 20%, #000 88%, transparent); }
+/* Equal fractional rows keep top/bottom space proportional to the text block.
+   The plume tip sits near 80% of the viewport, clear of desktop copy. */
 /* The source contains 280px sidebars and a phone bar below y=1216. Keep the photograph and its signature intact; crop only in this viewport. */
 .hero-scene img { position: absolute; top: 0; left: -12.5%; width: 125%; max-width: none; height: auto; }
 .hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, #041329ed, #041329a3 28%, transparent 60%); pointer-events: none; }
-.hero-layout { position: relative; z-index: 1; min-height: clamp(460px, 65svh, 660px); display: flex; align-items: center; padding-block: 56px; }
-.hero-copy { width: min(100%, 580px); min-width: 0; display: flex; flex-direction: column; align-items: flex-start; text-align: left; font-family: "Ma Shan Zheng", "KaiTi", "STKaiti", serif; font-weight: 400; font-synthesis: none; }
+.hero-layout { position: relative; z-index: 1; display: grid; grid-template-rows: .38fr 1fr .38fr; align-content: center; padding-block: 0; }
+.hero-copy { grid-row: 2; width: min(100%, 580px); min-width: 0; display: flex; flex-direction: column; align-items: flex-start; text-align: left; font-family: "Ma Shan Zheng", "KaiTi", "STKaiti", serif; font-weight: 400; font-synthesis: none; }
 .hero .institution { color: #d2deec; font-size: 1.375rem; line-height: 1.4; letter-spacing: .06em; margin: 0 0 18px; }
 .hero h1 { color: #fffaf1; font-size: clamp(3.5rem, 6.8vw, 6.5rem); font-weight: 400; line-height: 1.12; letter-spacing: .03em; margin: 0 0 24px; }
 .hero-fullname { max-width: 100%; color: #f1f4f8; font-size: clamp(1.0625rem, 1.5vw, 1.25rem); line-height: 1.5; white-space: nowrap; margin: 0; }
@@ -289,7 +291,6 @@ figure { margin: 0; }
   .site-nav a { padding: 10px 0; width: auto; font-size: 24px; }
 }
 @media (max-width: 900px) {
-  .hero-layout { min-height: clamp(460px, 65svh, 580px); }
   .hero-fullname { white-space: normal; }
   .portal-layout { display: block; }
   .portal-layout > .toc { display: none; }
@@ -310,8 +311,6 @@ figure { margin: 0; }
   .brand img { width: 40px; height: 40px; }
   .brand strong { font-size: 28px; }
   .brand small { font-size: 14px; }
-  .hero-layout { min-height: clamp(500px, 68svh, 580px); align-items: flex-start; padding-block: 36px; }
-  .hero-scene { top: auto; bottom: 32px; left: 92%; right: auto; height: 80%; transform: translateX(-62%); }
   .hero::after { background: linear-gradient(90deg, #04132966, #04132940 45%, transparent 78%), linear-gradient(180deg, #041329e6, #041329a3 22%, transparent 65%); }
   .hero .institution { font-size: 1.375rem; }
   .hero-fullname { font-size: 1.0625rem; white-space: normal; }
@@ -538,4 +537,18 @@ figure { margin: 0; }
   .markdown-body { font-size: 19px; }
   .markdown-body h2 { font-size: 29px; }
   .markdown-body h3 { font-size: 24px; }
+}
+
+
+/* CUADC's career note is a subordinate supplement, not another competition. */
+.competition-copy #参赛经历与求职 { margin: 28px 0 0 18px; border-left: 2px solid var(--line); padding: 0 0 12px 20px; font-size: 24px; }
+.competition-copy #参赛经历与求职 + p,
+.competition-copy #参赛经历与求职 + p + p { margin: 0 0 0 18px; border-left: 2px solid var(--line); padding: 0 0 18px 20px; font-size: 18px; color: var(--muted); }
+.competition-copy #参赛经历与求职 + p + p { display: flow-root; padding-bottom: 4px; }
+.competition-copy #参赛经历与求职 + p + p img { float: left; width: 130px; margin: 0 20px 8px 0; }
+@media (max-width: 640px) {
+  .competition-copy #参赛经历与求职,
+  .competition-copy #参赛经历与求职 + p,
+  .competition-copy #参赛经历与求职 + p + p { margin-left: 8px; padding-left: 14px; }
+  .competition-copy #参赛经历与求职 + p + p img { width: 100px; margin-right: 14px; }
 }
