@@ -278,7 +278,7 @@ test('CUADC employment evidence is subordinate to the competition, not a standal
   assert.match(html, /<p><img src="\/assets\/dji-cuadc-recruitment-2027.jpg"/);
 });
 
-test('resource directory separates learning routes from reference entries', () => {
+test('resource directory contains references without duplicate beginner routes', () => {
   const vm = require('node:vm');
   const sandbox = { module: { exports: {} }, URL, URLSearchParams, AERO_SITE_STRUCTURE: require('../网站内容/站点结构.json') };
   vm.createContext(sandbox);
@@ -286,10 +286,10 @@ test('resource directory separates learning routes from reference entries', () =
   sandbox.module.exports.setSiteCopy(copy);
   vm.runInContext('allArticles = [{ id: "moyi90", title: "魔翼 90 制作与协会取材" }, { id: "fpv-path", title: "穿越机入门" }]', sandbox);
   const html = sandbox.module.exports.renderResources({ body: '' });
-  assert.ok(html.includes('id="learning-title"'));
+  assert.ok(!html.includes('id="learning-title"'));
   assert.ok(html.includes('id="reference-title"'));
-  assert.equal((html.match(/class="resource-route-link"/g) || []).length, 3);
-  assert.ok(html.includes('article=fixed-wing-path&amp;route=fixed-wing'));
+  assert.equal((html.match(/class="resource-route-link"/g) || []).length, 0);
+  assert.ok(!html.includes('article=fixed-wing-path&amp;route=fixed-wing'));
   assert.ok(!html.includes('article=moyi90'));
   assert.ok(!/[→↗]/.test(site.renderHome()));
 });

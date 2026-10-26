@@ -203,19 +203,19 @@ figure { margin: 0; }
 .guide-page .page-head { margin-bottom: 24px; }
 .guide-page .join-panel { padding-block: 16px 0; }
 .guide-routes { margin-top: 40px; }
-.guide-routes > h2 { font-size: clamp(34px, 4vw, 48px); letter-spacing: -.03em; margin: 0 0 18px; }
+.guide-routes > h2 { font-size: 34px; letter-spacing: -.03em; margin: 0 0 18px; }
 .guide-options { margin: 28px 0 42px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 26px; }
 .guide-option { min-width: 0; }
-.guide-option h3 { font-size: clamp(26px, 2.6vw, 36px); margin: 0 0 22px; letter-spacing: -.025em; }
+.guide-option h3 { font-size: 26px; margin: 0 0 22px; letter-spacing: -.025em; }
 .guide-option p { margin: 0; }
 .guide-option .markdown-body img { display: block; width: 100%; height: auto; max-height: none; aspect-ratio: 4 / 3; object-fit: cover; margin: 0; border-radius: 3px; }
 .section-heading-link, .guide-option h3 a, .guide-supplement h2 a { color: var(--ink); text-decoration-thickness: 1px; text-underline-offset: 7px; text-decoration-color: var(--line); }
 .section-heading-link:hover, .section-heading-link:focus-visible, .guide-option h3 a:hover, .guide-option h3 a:focus-visible, .guide-supplement h2 a:hover, .guide-supplement h2 a:focus-visible { color: var(--blue); text-decoration-color: currentColor; }
 .guide-intro { max-width: 800px; }
 .guide-supplement { border-top: 1px solid var(--line); padding-top: 12px; }
-.resource-page .page-head { margin-bottom: 56px; }
+.resource-page .page-head { margin-bottom: 32px; }
 .resource-section-head { margin-bottom: 28px; }
-.resource-section-head h2 { font-size: 26px; margin: 0 0 8px; }
+.resource-section-head h2 { font-size: 34px; margin: 0 0 8px; }
 .resource-section-head p { color: var(--muted); margin: 0; font-size: 15px; }
 .resource-routes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
 .resource-route { min-width: 0; display: flex; }
@@ -225,7 +225,7 @@ figure { margin: 0; }
 .resource-route-action { margin-top: auto; font-size: 14px; font-weight: 600; color: var(--blue); }
 .resource-route-link:active { background: #e6edf5; }
 .resource-route-link:focus-visible { background: #edf2f8; }
-.resource-reference { margin-top: 72px; }
+.resource-reference { margin-top: 0; }
 .resource-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 44px 64px; }
 .resource-group { min-width: 0; border-top: 1px solid var(--line); padding-top: 22px; }
 .resource-group h3 { font-size: 20px; margin: 0 0 16px; }
@@ -479,11 +479,11 @@ figure { margin: 0; }
 
 
 /* Handwritten typography and open, paper-like editorial spacing. */
-.section-title h2, .split h2 { font-size: clamp(34px, 3.4vw, 46px); }
-.page-head h1 { font-size: clamp(36px, 4vw, 52px); }
-.reading-main .page-head h1 { font-size: clamp(32px, 3.6vw, 46px); }
+.section-title h2, .split h2 { font-size: 34px; }
+.page-head h1 { font-size: 48px; }
+.reading-main .page-head h1 { font-size: 48px; }
 .markdown-body { font-size: 20px; line-height: 1.95; }
-.markdown-body h2 { font-size: 32px; margin-top: 1.5em; }
+.markdown-body h2 { font-size: 34px; margin-top: 40px; }
 .markdown-body h3 { font-size: 26px; }
 .page-head p, .section-intro { font-size: 20px; }
 .entry dt, .project-facts dt, .record-category,
@@ -496,7 +496,7 @@ figure { margin: 0; }
 .route-sidebar .chapter, .toc, .article-toc summary { font-size: 18px; }
 .route-sidebar h3 { font-size: 19px; }
 .related-records > h2, .participation-guide h2 { font-size: 34px; }
-.resource-route-link h3, .resource-group h3 { font-size: 27px; }
+.resource-route-link h3, .resource-group h3 { font-size: 26px; }
 .resource-route-link p, .resource-entry-summary, .resource-section-head p,
 .flight-training-group li p, .printing-help p { font-size: 18px; }
 .resource-entry-title { font-size: 22px; }
@@ -535,8 +535,8 @@ figure { margin: 0; }
   .home-activities .stream-item.has-image { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 18px; padding-top: 22px; border-top: 1px solid var(--line); }
   .home-activities .stream-item h3 { font-size: 23px; }
   .markdown-body { font-size: 19px; }
-  .markdown-body h2 { font-size: 29px; }
-  .markdown-body h3 { font-size: 24px; }
+  .markdown-body h2 { font-size: 28px; }
+  .markdown-body h3 { font-size: 23px; }
 }
 
 
@@ -551,4 +551,65 @@ figure { margin: 0; }
   .competition-copy #参赛经历与求职 + p,
   .competition-copy #参赛经历与求职 + p + p { margin-left: 8px; padding-left: 14px; }
   .competition-copy #参赛经历与求职 + p + p img { width: 100px; margin-right: 14px; }
+}
+
+/* 固定翼各章节连续阅读，保留各自的编辑源文件。 */
+.continuous-route .route-section + .route-section { margin-top: 64px; padding-top: 40px; border-top: 1px solid var(--line); }
+.continuous-route .route-section > .page-head h2 { font-size: 36px; }
+.continuous-route .chapter[aria-current="location"] { background: #edf5fa; border-left-color: var(--blue); color: #105c91; }
+@media (max-width: 900px) {
+  .continuous-route .route-sidebar { position: sticky; top: 80px; z-index: 3; background: white; padding: 8px 0; }
+  .continuous-route .route-sidebar h2 { display: none; }
+  .continuous-route .route-sidebar nav { display: flex; overflow-x: auto; }
+  .continuous-route .chapter { flex-shrink: 0; }
+}
+
+/* 阅读区的层级与配色；封面、导航及搜索沿用原样。 */
+#main { --ink: #18232f; --text: #3e4349; --muted: #687079; --blue: #237eae; color: var(--text); }
+#main .hero { --blue: #245e9c; --ink: #18314f; --text: #344963; --muted: #60728a; }
+.join-panel h2, .guide-supplement h2, .activity-records > h2 { font-size: 34px; }
+/* 链接标题与普通标题共用墨色，以细线表示入口。 */
+#main :is(h1, h2, h3, h4) a, .aircraft-card h3 {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: #bcc6cf;
+  text-decoration-thickness: 1px;
+  text-underline-offset: .24em;
+}
+#main :is(h1, h2, h3, h4) a:hover,
+#main :is(h1, h2, h3, h4) a:focus-visible,
+.aircraft-card:hover h3, .aircraft-card:focus-visible h3 {
+  color: var(--blue);
+  text-decoration-color: currentColor;
+}
+/* 目录子项通过缩进、字号和墨蓝色体现从属关系。 */
+.resource-group ul { padding-left: 20px; }
+.resource-entry-title { color: var(--blue); font-size: 20px; }
+.resource-pending .resource-entry-title { color: var(--muted); }
+.toc a, .article-toc a, .route-sidebar .chapter:not([aria-current]) { color: var(--blue); }
+.toc a:hover, .article-toc a:hover, .route-sidebar .chapter:hover { color: var(--blue); }
+.markdown-body strong, .markdown-body b { color: var(--ink); text-decoration: underline; text-decoration-color: #a5adb5; text-decoration-thickness: 1px; text-underline-offset: .22em; }
+.continuous-route .route-section .markdown-body h2 { font-size: 28px; }
+.continuous-route .route-section .markdown-body h3 { font-size: 23px; }
+@media (max-width: 760px) {
+  .page-head h1, .reading-main .page-head h1 { font-size: 36px; }
+  .section-title h2, .split h2, .guide-routes > h2, .join-panel h2,
+  .guide-supplement h2, .resource-section-head h2, .related-records > h2,
+  .participation-guide h2, .activity-records > h2 { font-size: 28px; }
+  .guide-option h3, .resource-group h3, .resource-route-link h3 { font-size: 23px; }
+  .continuous-route .route-section > .page-head h2 { font-size: 32px; }
+  .continuous-route .route-section .markdown-body h2 { font-size: 26px; }
+  .continuous-route .route-section .markdown-body h3 { font-size: 23px; }
+  .resource-page .page-head { margin-bottom: 28px; }
+}
+
+#main .guide-option h3 a { color: var(--blue); }
+#main a:not(.button):not(.hero-guide):hover, #main a:not(.button):not(.hero-guide):focus-visible { color: var(--blue); }
+
+/* 桌面栏目居中，品牌与搜索分列两侧。 */
+@media (min-width: 1081px) {
+  .header-inner { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); }
+  .site-nav { margin-left: 0; justify-self: center; }
+  .header-actions { justify-self: end; }
+  .printing-help-open .header-inner { display: flex; }
 }
