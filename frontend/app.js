@@ -187,9 +187,8 @@ function renderGuide(article) {
   }).join('')}</div></section><div class="guide-supplement">${supporting.map(item => `<section class="guide-intro markdown-body"><h2>${renderInline(item.title)}</h2>${renderMarkdown(item.body)}</section>`).join('')}</div></div>`;
 }
 function renderResources(article) {
-  const routes = Object.entries(ROUTES).filter(([key]) => key !== 'design').map(([key, route]) => `<section class="resource-route"><a class="resource-route-link" href="${escapeAttr(articleHref(route.articles[0], key))}"><h3>${escapeHtml(route.title)}</h3><p>${escapeHtml(allArticles.find(item => item.id === route.articles[0])?.summary || '')}</p><span class="resource-route-action">开始学习</span></a></section>`).join('');
   const references = HANDBOOKS.map(group => `<section class="resource-group" id="${escapeAttr(group.anchor)}"><h3>${escapeHtml(group.title)}</h3><ul>${group.pending ? `<li class="resource-pending"><span class="resource-entry-title">${escapeHtml(group.pending)}</span></li>` : ''}${group.articles.map(id => allArticles.find(item => item.id === id)).filter(Boolean).map(item => `<li><a class="resource-entry" href="${escapeAttr(articleHref(item.id))}"><span class="resource-entry-title">${escapeHtml(item.title)}</span>${['3d-printing', 'flight-training', 'aerobatics-training', 'fai-model-classification'].includes(item.id) && item.summary ? `<span class="resource-entry-summary">${escapeHtml(item.summary)}</span>` : ''}</a></li>`).join('')}</ul></section>`).join('');
-  return `<div class="container page resource-page">${breadcrumbs([{ label: PAGES.resources.title }])}${pageHeader(article.title || PAGES.resources.title, article.summary)}<section class="resource-learning" aria-labelledby="learning-title"><div class="resource-section-head"><h2 id="learning-title">入门学习</h2><p>选择一个方向，按章节循序学习。</p></div><div class="resource-routes">${routes}</div></section><section class="resource-reference" aria-labelledby="reference-title"><div class="resource-section-head"><h2 id="reference-title">按需查阅</h2><p>制作、调试与训练时，找到需要的资料。</p></div><div class="resource-grid">${references}</div></section></div>`;
+  return `<div class="container page resource-page">${breadcrumbs([{ label: PAGES.resources.title }])}${pageHeader(article.title || PAGES.resources.title, article.summary)}<section class="resource-reference" aria-labelledby="reference-title"><div class="resource-section-head"><h2 id="reference-title">按需查阅</h2><p>制作、调试与训练时，找到需要的资料。</p></div><div class="resource-grid">${references}</div></section></div>`;
 }
 function renderToc(body, inline = false) {
   const headings = extractHeadings(body);
@@ -209,6 +208,47 @@ function renderSidebar(context, id) {
   if ((!context.isRoute && !context.isCourse) || context.articles.length < 2 || !context.articles.includes(id)) return '';
   const link = articleId => `<a class="chapter" href="${articleHref(articleId, context.key)}"${id === articleId ? ' aria-current="page"' : ''}>${escapeHtml(articleTitle(articleId, true))}</a>`;
   return `<aside class="route-sidebar" aria-label="${escapeAttr(context.title)}目录"><h2>${escapeHtml(context.title)}</h2><nav>${context.articles.map(link).join('')}</nav></aside>`;
+}
+function isContinuousRoute(context, id) {
+  return context?.key === 'fixed-wing' && context.articles.includes(id);
+}
+function renderContinuousRoute(articles, context) {
+  const sidebar = `<aside class="route-sidebar" aria-label="${escapeAttr(context.title)}目录"><h2>${escapeHtml(context.title)}</h2><nav>${articles.map(article => `<a class="chapter" href="#chapter-${escapeAttr(article.id)}">${escapeHtml(articleTitle(article.id, true))}</a>`).join('')}</nav></aside>`;
+  const sections = articles.map((article, index) => {
+    const body = renderMarkdown(stripTitle(article.body))
+      .replace(/id="([^"]+)"/g, `id="${article.id}--$1"`)
+      .replace(/href="#([^"]+)"/g, `href="#${article.id}--$1"`);
+    return `<section class="route-section" id="chapter-${escapeAttr(article.id)}" data-article="${escapeAttr(article.id)}"><header class="page-head"><${index ? 'h2' : 'h1'}>${escapeHtml(article.title)}</${index ? 'h2' : 'h1'}>${article.summary ? `<p>${escapeHtml(article.summary)}</p>` : ''}</header><article class="markdown-body">${body}</article>${renderMedia(article.media || [])}</section>`;
+  }).join('');
+  return `<div class="reading-layout continuous-route">${sidebar}<div class="reading-main">${breadcrumbs([{label: PAGES.guide.title, href: pageHref('guide')}, {label: context.title}])}${sections}</div></div>`;
+}
+let stopRouteTracking = () => {};
+function trackRouteSections() {
+  const sections = [...document.querySelectorAll('.route-section')];
+  if (!sections.length) return;
+  const links = [...document.querySelectorAll('.continuous-route .chapter')];
+  let frame = 0;
+  const update = () => {
+    frame = 0;
+    const offset = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) + 24;
+    let active = sections[0];
+    for (const section of sections) {
+      if (section.getBoundingClientRect().top <= offset) active = section;
+    }
+    for (const link of links) {
+      if (link.hash === '#' + active.id) link.setAttribute('aria-current', 'location');
+      else link.removeAttribute('aria-current');
+    }
+  };
+  const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
+  window.addEventListener('scroll', schedule, {passive: true});
+  window.addEventListener('resize', schedule);
+  update();
+  stopRouteTracking = () => {
+    window.removeEventListener('scroll', schedule);
+    window.removeEventListener('resize', schedule);
+    cancelAnimationFrame(frame);
+  };
 }
 function renderReader(article, context, state) {
   const body = stripTitle(article.body);
@@ -264,6 +304,7 @@ function renderContent(item) {
 }
 
 async function navigate(url, push = true, restoreScroll = false) {
+  stopRouteTracking();
   document.getElementById('printingHelp')?.close();
   const target = new URL(url, location.origin);
   if (push && target.href !== location.href) {
@@ -312,7 +353,11 @@ async function navigate(url, push = true, restoreScroll = false) {
           currentContext = context;
           const subject = getArticleContext(id);
           page = subject?.isRoute && subject.key !== 'design' ? 'guide' : 'resources';
-          html = renderReader(article, context, state);
+          if (isContinuousRoute(context, id)) {
+            const articles = await Promise.all(context.articles.map(fetchArticle));
+            if (version !== renderVersion) return;
+            html = renderContinuousRoute(articles, context);
+          } else html = renderReader(article, context, state);
         } else if (mappedPage === 'guide') { page = 'guide'; html = renderGuide(article); }
         else if (mappedPage === 'resources') { page = 'resources'; html = renderResources(article); }
         else { page = mappedPage || 'resources'; html = renderPortal(article, page); }
@@ -326,7 +371,9 @@ async function navigate(url, push = true, restoreScroll = false) {
     main.removeAttribute('aria-busy');
     if (restoreScroll) window.scrollTo({ top: history.state?.scrollY || 0, behavior: 'instant' });
     else if (target.hash && !target.hash.startsWith('#/article/')) scrollToHash(target.hash);
+    else if (isContinuousRoute(currentContext, state.id)) scrollToHash('#chapter-' + state.id);
     else window.scrollTo({ top: 0, behavior: 'instant' });
+    trackRouteSections();
     if (push) main.focus({ preventScroll: true });
   } catch (error) {
     if (version !== renderVersion) return;
@@ -337,7 +384,8 @@ async function navigate(url, push = true, restoreScroll = false) {
 function scrollToHash(hash) {
   let id;
   try { id = decodeURIComponent(hash.slice(1)); } catch { return; }
-  const node = document.getElementById(id === 'project-history' ? 'project-records' : id);
+  const node = document.getElementById(id === 'project-history' ? 'project-records' : id)
+    || document.getElementById(currentState.id + '--' + id);
   if (node) node.scrollIntoView();
 }
 function closeMenu() {
@@ -358,6 +406,12 @@ function followLink(event) {
   if (target.origin !== location.origin || target.pathname !== SITE_ROOT.pathname) return;
   event.preventDefault();
   const id = target.searchParams.get('article');
+  if (isContinuousRoute(currentContext, id) && document.querySelector('.continuous-route')) {
+    const hash = target.hash ? '#' + id + '--' + target.hash.slice(1) : '#chapter-' + id;
+    history.pushState({}, '', hash);
+    scrollToHash(hash);
+    return;
+  }
   if (id && currentContext?.isRoute && routeContains(currentContext.key, id) && !target.searchParams.has('route')) target.searchParams.set('route', currentContext.key);
   const route = target.searchParams.get('route');
   if (id && route && ROUTES[route]?.references.includes(id)) {
@@ -637,4 +691,4 @@ async function init() {
   await navigate(location.href, false);
 }
 if (typeof document !== 'undefined' && document.getElementById('main')) init();
-if (typeof module !== 'undefined' && module.exports) module.exports = { guideResultHref, renderGuideResults, setSiteCopy, ROUTES, HANDBOOKS, FLIGHT_COURSES, PAGES, PORTAL_ARTICLES, getArticleContext, articleHref, readLocation, chapterNeighbours, renderMarkdown, extractHeadings, renderSidebar, renderReader, renderGuide, renderResources, renderContent, renderAircraftDirectory, renderAircraftDetail, renderHero, renderHome, renderPortal, renderProjectRecords, renderActivities, safeUrl };
+if (typeof module !== 'undefined' && module.exports) module.exports = { renderContinuousRoute, isContinuousRoute, guideResultHref, renderGuideResults, setSiteCopy, ROUTES, HANDBOOKS, FLIGHT_COURSES, PAGES, PORTAL_ARTICLES, getArticleContext, articleHref, readLocation, chapterNeighbours, renderMarkdown, extractHeadings, renderSidebar, renderReader, renderGuide, renderResources, renderContent, renderAircraftDirectory, renderAircraftDetail, renderHero, renderHome, renderPortal, renderProjectRecords, renderActivities, safeUrl };
