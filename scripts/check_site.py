@@ -22,6 +22,7 @@ def main() -> None:
     run(sys.executable, "-m", "unittest", "discover", "-s", "tests", "-p", "test_site_guide.py")
 
     run(sys.executable, "-m", "unittest", "discover", "-s", "tests", "-p", "test_site_structure.py")
+    run(sys.executable, "-m", "unittest", "discover", "-s", "tests", "-p", "test_static_performance.py")
 
     records = json.loads((DIST / "api/content/news/index.json").read_text(encoding="utf-8"))["items"]
     if len(records) != 14:

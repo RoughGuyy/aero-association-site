@@ -15,6 +15,7 @@ from aero_association_agent.content_loader import CONTENT_KINDS, load_public_con
 from aero_association_agent.settings import FRONTEND_DIR, PROJECT_ROOT, PUBLIC_ASSETS_DIR
 from aero_association_agent.site_copy import load_site_copy, render_index
 from aero_association_agent.site_structure import navigation_index
+from aero_association_agent.static_performance import optimize
 
 
 OUTPUT_DIR = PROJECT_ROOT / "dist"
@@ -136,6 +137,8 @@ def build(*, preview: bool = False) -> None:
         destination = output / relative
         destination.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source, destination)
+
+    optimize(output, copied, serialized)
 
     print(f"静态网站已生成：{output}")
     print(f"公开文章 {len(articles)} 篇，活动记录 {sum(map(len, content.values()))} 条，资源文件 {len(copied)} 个")
