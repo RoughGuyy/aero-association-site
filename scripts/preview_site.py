@@ -28,7 +28,7 @@ revision = ""
 
 
 def snapshot() -> dict[str, tuple[int, int]]:
-    paths = [ROOT / "build_static_site.py", ROOT / "requirements-static.txt"]
+    paths = [ROOT / "build_static_site.py", ROOT / "requirements-static.txt", ROOT / "scripts/render_pages.cjs"]
     for folder in WATCHED:
         paths.extend(p for p in folder.rglob("*") if p.is_file() and "__pycache__" not in p.parts)
     result = {}
@@ -97,8 +97,9 @@ class PreviewHandler(GuideHandlerMixin, SimpleHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(body)
                 return
-            if path in ("/", "/index.html"):
-                body = (DIST / "index.html").read_text(encoding="utf-8")
+            page = (DIST / (path.lstrip('/') or 'index.html')).resolve()
+            if page.parent == DIST.resolve() and page.suffix == '.html' and page.is_file():
+                body = page.read_text(encoding="utf-8")
                 script = """<script>
 const previewRevision = REVISION;
 let checkingPreview = false;

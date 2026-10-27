@@ -17,6 +17,7 @@ dist/
 
 .preview-build/
 .preview-previous/
+.asset-cache/
 cloudflare/node_modules/
 cloudflare/generated/
 cloudflare/.wrangler/

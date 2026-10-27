@@ -59,7 +59,9 @@ function articleHref(id, route = '', returnId = '') {
 }
 function readLocation(url) {
   const parsed = new URL(url, 'http://localhost');
-  const query = parsed.searchParams;
+  const stored = globalThis.AERO_PAGE_ROUTES?.[parsed.pathname.split('/').pop() || 'index.html'];
+  const query = new URLSearchParams(stored || '');
+  parsed.searchParams.forEach((value, key) => query.set(key, value));
   const legacy = parsed.hash.match(/^#\/article\/(.+)$/);
   const article = query.get('article') || (legacy ? decodeURIComponent(legacy[1]) : '');
   if (article) return { type: 'article', id: article, route: query.get('route') || '', returnId: query.get('return') || '' };
@@ -70,6 +72,24 @@ function readLocation(url) {
   return { type: 'page', page: PAGES[page] ? page : 'home' };
 }
 function pageHref(page) { return page === 'home' ? siteHref() : siteHref('?page=' + page); }
+function staticDestination(state) {
+  const routes = globalThis.AERO_PAGE_ROUTES || {};
+  const keys = [];
+  if (state.type === 'article') {
+    const context = getArticleContext(state.id, state.route);
+    if (context?.isRoute && context.references.includes(state.id)) {
+      const returnId = context.articles.includes(state.returnId) ? state.returnId : context.articles[0];
+      keys.push(`article=${state.id}&route=${context.key}&return=${returnId}`);
+    }
+    keys.push('article=' + state.id);
+    if (PORTAL_ARTICLES[state.id]) keys.push('page=' + PORTAL_ARTICLES[state.id]);
+  } else keys.push(state.type === 'content' ? `kind=${state.kind}&id=${state.id}` : 'page=' + state.page);
+  for (const key of keys) {
+    const match = Object.entries(routes).find(([, query]) => query === key);
+    if (match) return match[0];
+  }
+  return '';
+}
 function contentHref(kind, id) { return siteHref('?' + new URLSearchParams({ kind, id }).toString()); }
 function chapterNeighbours(id, context) {
   if (!context?.isRoute && !context?.isCourse) return { previous: '', next: '' };
@@ -95,8 +115,9 @@ async function fetchJson(path, options = {}) {
     else if (/^content\/(news|notices|projects|aircraft)\//.test(clean)) target = 'api/' + clean + '.json';
     else target = 'api/' + clean + '.json';
     target = siteHref(target);
+    if (globalThis.AERO_BUILD_VERSION) target += '?v=' + globalThis.AERO_BUILD_VERSION;
   }
-  const response = await fetch(target, { cache: 'no-store', ...options });
+  const response = await fetch(target, { cache: 'default', ...options });
   if (!response.ok) throw new Error(String(response.status));
   return response.json();
 }
@@ -275,7 +296,7 @@ function renderAircraftDirectory(items) {
   items = [...items].sort((a, b) => aircraftRandomRanks.get(a.id) - aircraftRandomRanks.get(b.id) || a.id.localeCompare(b.id));
   return `<div class="container page">${breadcrumbs([{ label: PAGES.aircraft.title }])}${pageHeader(PAGES.aircraft.title, '记录协会与成员的航模，以及它们和我们一起经历的故事。')}${items.some(item => item.status === 'draft') ? '<p class="aircraft-draft">本地草稿预览：草稿不会出现在正式发布的网站上。</p>' : ''}${!items.length ? '<p>航模档案正在整理。</p>' : `<div class="aircraft-grid">${items.map(item => {
     const cover = safeUrl(item.cover, true);
-    return `<a class="aircraft-card" href="${escapeAttr(contentHref('aircraft', item.id))}">${cover ? `<img src="${escapeAttr(cover)}" alt="${escapeAttr(item.cover_alt || item.title)}" loading="lazy">` : ''}<div class="aircraft-card-copy"><p class="record-meta">${aircraftLabels(item)}${item.status === 'draft' ? ' · 草稿' : ''}</p><h3>${escapeHtml(item.title)}</h3>${item.summary ? `<p>${escapeHtml(item.summary)}</p>` : ''}<span class="text-link">查看档案</span></div></a>`;
+    return `<a class="aircraft-card" href="${escapeAttr(contentHref('aircraft', item.id))}">${cover ? `<img class="card-photo" src="${escapeAttr(cover)}" alt="${escapeAttr(item.cover_alt || item.title)}" loading="lazy">` : ''}<div class="aircraft-card-copy"><p class="record-meta">${aircraftLabels(item)}${item.status === 'draft' ? ' · 草稿' : ''}</p><h3>${escapeHtml(item.title)}</h3>${item.summary ? `<p>${escapeHtml(item.summary)}</p>` : ''}<span class="text-link">查看档案</span></div></a>`;
   }).join('')}</div>`}</div>`;
 }
 function renderAircraftDetail(item) {
@@ -303,6 +324,51 @@ function renderContent(item) {
   return `<div class="container page">${breadcrumbs([{ label: PAGES[page].title, href: backHref }, { label: item.title }])}${pageHeader(item.title, item.summary)}${renderRecordMeta(item)}${showCover ? `<img class="page-cover${item.kind === 'news' ? ' news-cover' : ''}" src="${escapeAttr(cover)}" alt="${escapeAttr(item.cover_alt || item.title)}">` : ''}${fields.length ? `<dl class="notice-facts">${fields.map(([key, label]) => `<div><dt>${label}</dt><dd>${escapeHtml(item[key])}</dd></div>`).join('')}</dl>` : ''}<div class="portal-reading">${renderToc(item.body, true)}<article class="markdown-body">${renderMarkdown(stripTitle(item.body))}</article>${registration ? `<div class="actions"><a class="button" href="${escapeAttr(registration)}" target="_blank" rel="noopener noreferrer">前往报名</a></div>` : ''}${renderMedia(media)}${renderSource(item)}<nav class="content-footer" aria-label="返回列表"><a href="${backHref}">← ${escapeHtml(wording('阅读', '返回'))}${escapeHtml(PAGES[page].title)}</a></nav></div></div>`;
 }
 
+async function renderView(state) {
+    let html = '';
+    let page = 'home';
+    let title = '空天科协';
+    if (state.type === 'content') {
+      const item = await fetchJson(`/api/content/${state.kind}/${encodeURIComponent(state.id)}`);
+      html = renderContent(item);
+      page = state.kind === 'aircraft' ? 'aircraft' : state.kind === 'projects' ? 'projects' : 'activities';
+      title = item.title;
+    } else {
+      const mappedPage = state.type === 'article' ? PORTAL_ARTICLES[state.id] : state.page;
+      if (['home', 'activities', 'projects'].includes(mappedPage)) {
+        const kind = mappedPage === 'projects' ? 'projects' : 'news';
+        const data = await fetchJson('/api/content/' + kind);
+        currentContent = { news: [], notices: [], projects: [], [kind]: data.items };
+      }
+      if (mappedPage === 'home') html = renderHome(currentContent, (await fetchArticle('association-intro')).body);
+      else if (mappedPage === 'activities') {
+        page = 'activities'; title = PAGES[page].title;
+        const guide = await fetchArticle('activity-guide');
+        html = renderActivities(currentContent, guide);
+      } else if (mappedPage === 'aircraft') {
+        page = 'aircraft'; title = PAGES[page].title;
+        const data = await fetchJson('/api/content/aircraft');
+        html = renderAircraftDirectory(data.items);
+      } else {
+        const id = state.type === 'article' ? state.id : PAGES[state.page].article;
+        const article = await fetchArticle(id);
+        const context = getArticleContext(id, state.route);
+        if (context) {
+          currentContext = context;
+          const subject = getArticleContext(id);
+          page = subject?.isRoute && subject.key !== 'design' ? 'guide' : 'resources';
+          if (isContinuousRoute(context, id)) {
+            const articles = await Promise.all(context.articles.map(fetchArticle));
+            html = renderContinuousRoute(articles, context);
+          } else html = renderReader(article, context, state);
+        } else if (mappedPage === 'guide') { page = 'guide'; html = renderGuide(article); }
+        else if (mappedPage === 'resources') { page = 'resources'; html = renderResources(article); }
+        else { page = mappedPage || 'resources'; html = renderPortal(article, page); }
+        title = article.title;
+      }
+    }
+    return {html, page, title};
+}
 async function navigate(url, push = true, restoreScroll = false) {
   stopRouteTracking();
   document.getElementById('printingHelp')?.close();
@@ -319,51 +385,7 @@ async function navigate(url, push = true, restoreScroll = false) {
   main.setAttribute('aria-busy', 'true');
   closeMenu();
   try {
-    let html = '';
-    let page = 'home';
-    let title = '空天科协';
-    if (state.type === 'content') {
-      const item = await fetchJson(`/api/content/${state.kind}/${encodeURIComponent(state.id)}`);
-      html = renderContent(item);
-      page = state.kind === 'aircraft' ? 'aircraft' : state.kind === 'projects' ? 'projects' : 'activities';
-      title = item.title;
-    } else {
-      const mappedPage = state.type === 'article' ? PORTAL_ARTICLES[state.id] : state.page;
-      if (['home', 'activities', 'projects'].includes(mappedPage)) {
-        const [news, notices, projects] = await Promise.all(['news', 'notices', 'projects'].map(kind => fetchJson('/api/content/' + kind)));
-        if (version !== renderVersion) return;
-        currentContent = { news: news.items, notices: notices.items, projects: projects.items };
-      }
-      if (mappedPage === 'home') html = renderHome(currentContent, (await fetchArticle('association-intro')).body);
-      else if (mappedPage === 'activities') {
-        page = 'activities'; title = PAGES[page].title;
-        const guide = await fetchArticle('activity-guide');
-        if (version !== renderVersion) return;
-        html = renderActivities(currentContent, guide);
-      } else if (mappedPage === 'aircraft') {
-        page = 'aircraft'; title = PAGES[page].title;
-        const data = await fetchJson('/api/content/aircraft');
-        html = renderAircraftDirectory(data.items);
-      } else {
-        const id = state.type === 'article' ? state.id : PAGES[state.page].article;
-        const article = await fetchArticle(id);
-        if (version !== renderVersion) return;
-        const context = getArticleContext(id, state.route);
-        if (context) {
-          currentContext = context;
-          const subject = getArticleContext(id);
-          page = subject?.isRoute && subject.key !== 'design' ? 'guide' : 'resources';
-          if (isContinuousRoute(context, id)) {
-            const articles = await Promise.all(context.articles.map(fetchArticle));
-            if (version !== renderVersion) return;
-            html = renderContinuousRoute(articles, context);
-          } else html = renderReader(article, context, state);
-        } else if (mappedPage === 'guide') { page = 'guide'; html = renderGuide(article); }
-        else if (mappedPage === 'resources') { page = 'resources'; html = renderResources(article); }
-        else { page = mappedPage || 'resources'; html = renderPortal(article, page); }
-        title = article.title;
-      }
-    }
+    const {html, page, title} = await renderView(state);
     if (version !== renderVersion) return;
     main.innerHTML = html;
     document.title = page === 'home' ? `${wording('站点', '名称')} · ${wording('站点', '学校')}` : `${title} · ${wording('站点', '名称')}`;
@@ -403,7 +425,17 @@ function followLink(event) {
     return;
   }
   const target = new URL(link.href);
-  if (target.origin !== location.origin || target.pathname !== SITE_ROOT.pathname) return;
+  if (target.origin !== location.origin) return;
+  if (globalThis.AERO_PRERENDERED) {
+    const state = readLocation(target.href);
+    if (isContinuousRoute(currentContext, state.id) && document.querySelector('.continuous-route')) {
+      event.preventDefault();
+      const hash = target.hash ? '#' + state.id + '--' + target.hash.slice(1) : '#chapter-' + state.id;
+      history.pushState({}, '', hash); scrollToHash(hash);
+    }
+    return;
+  }
+  if (target.pathname !== SITE_ROOT.pathname) return;
   event.preventDefault();
   const id = target.searchParams.get('article');
   if (isContinuousRoute(currentContext, id) && document.querySelector('.continuous-route')) {
@@ -590,6 +622,10 @@ function guideResultHref(value) {
   const page = url.searchParams.get('page');
   const kind = url.searchParams.get('kind');
   if (!(article || PAGES[page] || ['news', 'notices', 'projects', 'aircraft'].includes(kind) && url.searchParams.get('id'))) return '';
+  if (globalThis.AERO_PRERENDERED) {
+    const destination = staticDestination(readLocation(url.href));
+    if (destination) return siteHref(destination) + url.hash;
+  }
   return url.pathname + url.search + url.hash;
 }
 function renderGuideResults(data) {
@@ -678,11 +714,27 @@ async function init() {
       document.getElementById('printingHelp')?.close();
     }
   });
+  if (globalThis.AERO_PRERENDERED) {
+    currentState = readLocation(location.href);
+    currentContext = currentState.type === 'article' ? getArticleContext(currentState.id, currentState.route) : null;
+    if (location.search || location.hash.startsWith('#/article/')) {
+      const destination = staticDestination(currentState);
+      if (destination && destination !== location.pathname.split('/').pop()) {
+        location.replace(siteHref(destination) + (location.hash.startsWith('#/article/') ? '' : location.hash)); return;
+      }
+    }
+    const grid = document.querySelector('.aircraft-grid');
+    if (grid) [...grid.children].map(node => ({node, rank: Math.random()})).sort((a, b) => a.rank - b.rank).forEach(({node}) => grid.append(node));
+    if (location.hash) scrollToHash(location.hash);
+    else if (isContinuousRoute(currentContext, currentState.id)) scrollToHash('#chapter-' + currentState.id);
+    trackRouteSections();
+    return;
+  }
   history.scrollRestoration = 'manual';
   window.addEventListener('popstate', () => navigate(location.href, false, true));
   try {
-    setSiteCopy(await fetchJson('/api/site-copy'));
-    const data = await fetchJson('/api/articles');
+    const [copy, data] = await Promise.all([fetchJson('/api/site-copy'), fetchJson('/api/articles')]);
+    setSiteCopy(copy);
     allArticles = data.sections.flatMap(section => section.articles);
   } catch {
     document.getElementById('main').innerHTML = '<div class="container error-page"><h1>内容暂时无法打开</h1><p>请刷新后再试。</p></div>';
@@ -691,4 +743,4 @@ async function init() {
   await navigate(location.href, false);
 }
 if (typeof document !== 'undefined' && document.getElementById('main')) init();
-if (typeof module !== 'undefined' && module.exports) module.exports = { renderContinuousRoute, isContinuousRoute, guideResultHref, renderGuideResults, setSiteCopy, ROUTES, HANDBOOKS, FLIGHT_COURSES, PAGES, PORTAL_ARTICLES, getArticleContext, articleHref, readLocation, chapterNeighbours, renderMarkdown, extractHeadings, renderSidebar, renderReader, renderGuide, renderResources, renderContent, renderAircraftDirectory, renderAircraftDetail, renderHero, renderHome, renderPortal, renderProjectRecords, renderActivities, safeUrl };
+if (typeof module !== 'undefined' && module.exports) module.exports = { staticDestination, renderView, setArticles: value => { allArticles = value; }, renderContinuousRoute, isContinuousRoute, guideResultHref, renderGuideResults, setSiteCopy, ROUTES, HANDBOOKS, FLIGHT_COURSES, PAGES, PORTAL_ARTICLES, getArticleContext, articleHref, readLocation, chapterNeighbours, renderMarkdown, extractHeadings, renderSidebar, renderReader, renderGuide, renderResources, renderContent, renderAircraftDirectory, renderAircraftDetail, renderHero, renderHome, renderPortal, renderProjectRecords, renderActivities, safeUrl };
